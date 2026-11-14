@@ -77,3 +77,14 @@ class Navigation(unittest.TestCase):
                 self.assertIn('Editorial introduction',before)
                 self.assertIn('Source notes.',before)
                 self.assertIn('December 28, 2026–January 3, 2027',before)
+
+class ReaderPresentation(unittest.TestCase):
+    def test_weekly_page_excludes_diagnostics(self):
+        text=frontier.weekly_page(monday('2026-11-09'),['- [AI](ai.md)'],['- A story'])
+        self.assertIn('November 9–15, 2026',text)
+        self.assertIn('## Topic briefings',text)
+        self.assertNotIn('Collection reports',text)
+        self.assertNotIn('```json',text)
+    def test_publisher_and_dates_are_readable(self):
+        self.assertEqual(frontier.publisher_name('bbc-tech'),'BBC Technology')
+        self.assertEqual(frontier.publication_date('2026-11-14T02:00:00+00:00'),'November 13, 2026')

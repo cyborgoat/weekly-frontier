@@ -74,4 +74,4 @@ jobs:
           branch: news/week-of-${{ steps.mode.outputs.week }}
           title: 'News: week-of-${{ steps.mode.outputs.week }}'
           commit-message: Generate weekly news digest
-          body: 'Automated digest from archived feed excerpts. Review source coverage in the weekly index and factual accuracy before merging.'
+          body: 'Reader-facing weekly briefings based on source excerpts. Review summaries, publisher links, and factual accuracy before merging. Collection diagnostics belong in workflow logs and data archives, not published editions.'
