@@ -1,33 +1,47 @@
 # Weekly Frontier
 
-English weekly news digests organized by AI, technology, politics, finance, science, and business. Browse `topics/` or `weekly/`. Weeks start Monday in America/Los_Angeles and use `week-of-yyyy-mm-dd` filenames.
+A weekly reading companion for people following developments in AI, technology, politics, finance, science, and business. Browse concise briefings, explore a topic, and follow the source links for the original reporting.
 
-## Setup
+## Read the latest edition
 
-Use Python 3.12 or newer. Create a virtual environment with `python3 -m venv .venv`, activate it with `source .venv/bin/activate`, then install `pip install -r requirements.txt`. Copy `.env.example` for reference; environment variables must be exported in your shell (the script does not load dotenv files). Set `LLM_API_KEY`, `LLM_MODEL`, and `LLM_BASE_URL`. Never commit credentials.
+<!-- navigation:start -->
+Latest available: [November 9–15, 2026](weekly/2026/week-of-2026-11-09.md)
+Current reporting week — coverage is incomplete.
 
-In GitHub, set secret `LLM_API_KEY` and repository variable `LLM_MODEL`. Enable Actions permissions to write repository content and create pull requests. Branch protections may require adapting daily archive publishing to your repository policy.
+### 2026
 
-## Commands
+- [November 9–15, 2026](weekly/2026/week-of-2026-11-09.md)
+<!-- navigation:end -->
 
-```sh
-python scripts/frontier.py collect --dry-run
-python scripts/frontier.py collect
-python scripts/frontier.py generate --week-of 2026-11-09 --dry-run
-python scripts/frontier.py generate --week-of 2026-11-09
-python -m unittest discover -s tests
-```
+## Explore by topic
 
-Generation requires collected records and reports from the requested week. `--regenerate` permits replacing existing local digests. Review changes before committing. Daily runs archive feed text at 08:17 LA; Monday generation runs at 09:17 LA. GitHub schedules can be delayed. Manual workflow dispatch supports recovery; missed feed history cannot always be reconstructed.
+| Topic | What you’ll find |
+| --- | --- |
+| [AI](topics/ai/README.md) | Research papers, model releases, evaluations, datasets, and research tools. |
+| [Technology](topics/technology/README.md) | Computing, digital infrastructure, platforms, and emerging technologies. |
+| [Politics](topics/politics/README.md) | International developments, public policy, and political reporting. |
+| [Finance](topics/finance/README.md) | Monetary policy, economic developments, and financial news. |
+| [Science](topics/science/README.md) | Research discoveries, space, and developments across science. |
+| [Business](topics/business/README.md) | Companies, industries, markets, and changes in how business operates. |
 
-## Sources and editorial policy
+## How the briefings work
 
-Edit `config/sources.yaml` to add feeds. Seventeen feeds cover AI papers, research labs, tooling and commentary alongside BBC, TechCrunch, Ars Technica, Federal Reserve, Nature, and NASA. BBC Business also supplies finance candidates. Political coverage needs broader geographic and publisher diversity.
+Feeds are gathered daily, with a weekly briefing prepared on Mondays for the previous Monday–Sunday. Reporting periods use Los Angeles time, including daylight saving changes.
 
-Summaries use feed excerpts, not full website articles. Links identify original sources. Daily polling reduces missing stories but cannot guarantee completeness. Disputed claims should be attributed; significance is analysis. Human review is required before merging.
+Each topic includes up to eight selected stories, a short summary, an explanation of why it matters, and links to the original sources. Drafts are submitted through pull requests for review before publication.
 
-## Current limitations
+## Sources and reading notes
 
-The initial implementation selects recent candidates and asks the model to group significant stories. It does not perform independent fact checking. Generated JSON is validated only for source indices and required fields. Invalid responses fail the run. Generation refuses to update an open review PR; preserve edits and close the PR before regenerating. Automatic JSON repair, detailed usage metrics, and broader fixture tests remain follow-up work.
+The collection draws on publisher feeds, research labs, and paper announcements. Summaries are generated from feed excerpts rather than full articles; follow the source links for context and detail.
 
-AI coverage uses a combined arXiv feed plus seven lab, tooling, and commentary feeds. Weekly selection balances sources (up to 80 AI candidates) before choosing eight stories. This is a bounded sample, not an exhaustive literature review. Preprints and lab claims must be identified as such. Daily collection remains at 08:17 Los Angeles time; feeds are not real-time alerts.
+Selection is limited and coverage may be incomplete, especially when collection begins partway through a week. Briefings are not exhaustive surveys or independently fact-checked reporting. “Why it matters” adds interpretation to the reported information.
+
+AI coverage includes unreviewed preprints, lab claims, and technical commentary. Political coverage currently has limited publisher and geographic diversity. Read across sources when assessing a claim.
+
+## Behind the collection
+
+For source configuration, automation, and local commands, see the [maintainer guide](docs/maintenance.md).
+
+## License
+
+Repository materials are provided under the [MIT license](LICENSE). Linked articles and other source materials remain subject to their publishers’ terms.

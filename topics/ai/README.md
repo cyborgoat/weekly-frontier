@@ -1,11 +1,22 @@
 # AI
 
-Research-focused coverage of machine learning, language models, computer vision, evaluation, open models, datasets, and research tooling. Digests appear after collection and weekly generation.
+Follow research methods, language models, computer vision, evaluations, open models, datasets, and tooling.
 
-Sources: arXiv (cs.AI, cs.LG, cs.CL, cs.CV, stat.ML), OpenAI, Google DeepMind, Google Research, Hugging Face, Berkeley AI Research, Interconnects, and Lilian Weng. The last two provide commentary and occasional technical deep dives rather than daily news.
+## Briefings
 
-Preprints are not peer-reviewed findings. Lab announcements contain publisher claims. Summaries should explain methods, evidence, limitations, and practical research relevance only when present in source excerpts. RSS selection is a bounded sample, not an exhaustive literature review.
+<!-- navigation:start -->
+Latest available: [November 9–15, 2026](2026/week-of-2026-11-09.md)
+Current reporting week — coverage is incomplete.
 
-## Archive
+### 2026
 
-- [week-of-2026-11-09](2026/week-of-2026-11-09.md)
+- [November 9–15, 2026](2026/week-of-2026-11-09.md)
+<!-- navigation:end -->
+
+## Coverage and sources
+
+arXiv, OpenAI, Google DeepMind, Google Research, Hugging Face, Berkeley AI Research, Interconnects, and Lilian Weng. Preprints are not peer-reviewed findings; lab announcements and commentary represent their authors’ claims. This is a selected briefing, not an exhaustive literature review.
+
+Summaries use feed excerpts and link to the original material. Selection and source availability limit coverage.
+
+[Weekly Frontier](../../README.md) · [All weekly editions](../../weekly/README.md)
