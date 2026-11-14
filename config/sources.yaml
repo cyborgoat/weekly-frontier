@@ -1,17 +1,17 @@
-- {id: bbc-tech, topic: technology, url: 'https://feeds.bbci.co.uk/news/technology/rss.xml'}
-- {id: techcrunch, topic: technology, url: 'https://techcrunch.com/feed/'}
-- {id: ars, topic: technology, url: 'https://feeds.arstechnica.com/arstechnica/index'}
-- {id: bbc-world, topic: politics, url: 'https://feeds.bbci.co.uk/news/world/rss.xml'}
-- {id: bbc-politics, topic: politics, url: 'https://feeds.bbci.co.uk/news/politics/rss.xml'}
-- {id: fed, topic: finance, url: 'https://www.federalreserve.gov/feeds/press_monetary.xml'}
-- {id: bbc-business, topic: business, url: 'https://feeds.bbci.co.uk/news/business/rss.xml'}
-- {id: nature, topic: science, url: 'https://www.nature.com/nature.rss'}
-- {id: nasa, topic: science, url: 'https://www.nasa.gov/feed/'}
-- {id: arxiv-ai, topic: ai, kind: preprint, url: 'https://rss.arxiv.org/rss/cs.AI+cs.LG+cs.CL+cs.CV+stat.ML'}
-- {id: huggingface, topic: ai, kind: tooling, url: 'https://huggingface.co/blog/feed.xml'}
-- {id: deepmind, topic: ai, kind: lab, url: 'https://deepmind.google/blog/rss.xml'}
-- {id: openai, topic: ai, kind: lab, url: 'https://openai.com/news/rss.xml'}
-- {id: google-research, topic: ai, kind: lab, url: 'https://research.google/blog/rss/'}
-- {id: bair, topic: ai, kind: lab, url: 'https://bair.berkeley.edu/blog/feed.xml'}
-- {id: interconnects, topic: ai, kind: analysis, url: 'https://www.interconnects.ai/feed'}
-- {id: lilian-weng, topic: ai, kind: analysis, url: 'https://lilianweng.github.io/index.xml'}
+- {id: bbc-tech, name: BBC Technology, topic: technology, url: 'https://feeds.bbci.co.uk/news/technology/rss.xml'}
+- {id: techcrunch, name: TechCrunch, topic: technology, url: 'https://techcrunch.com/feed/'}
+- {id: ars, name: Ars Technica, topic: technology, url: 'https://feeds.arstechnica.com/arstechnica/index'}
+- {id: bbc-world, name: BBC World, topic: politics, url: 'https://feeds.bbci.co.uk/news/world/rss.xml'}
+- {id: bbc-politics, name: BBC Politics, topic: politics, url: 'https://feeds.bbci.co.uk/news/politics/rss.xml'}
+- {id: fed, name: Federal Reserve, topic: finance, url: 'https://www.federalreserve.gov/feeds/press_monetary.xml'}
+- {id: bbc-business, name: BBC Business, topic: business, url: 'https://feeds.bbci.co.uk/news/business/rss.xml'}
+- {id: nature, name: Nature, topic: science, url: 'https://www.nature.com/nature.rss'}
+- {id: nasa, name: NASA, topic: science, url: 'https://www.nasa.gov/feed/'}
+- {id: arxiv-ai, name: arXiv, topic: ai, kind: preprint, url: 'https://rss.arxiv.org/rss/cs.AI+cs.LG+cs.CL+cs.CV+stat.ML'}
+- {id: huggingface, name: Hugging Face, topic: ai, kind: tooling, url: 'https://huggingface.co/blog/feed.xml'}
+- {id: deepmind, name: Google DeepMind, topic: ai, kind: lab, url: 'https://deepmind.google/blog/rss.xml'}
+- {id: openai, name: OpenAI, topic: ai, kind: lab, url: 'https://openai.com/news/rss.xml'}
+- {id: google-research, name: Google Research, topic: ai, kind: lab, url: 'https://research.google/blog/rss/'}
+- {id: bair, name: Berkeley AI Research, topic: ai, kind: lab, url: 'https://bair.berkeley.edu/blog/feed.xml'}
+- {id: interconnects, name: Interconnects, topic: ai, kind: analysis, url: 'https://www.interconnects.ai/feed'}
+- {id: lilian-weng, name: Lilian Weng, topic: ai, kind: analysis, url: 'https://lilianweng.github.io/index.xml'}
