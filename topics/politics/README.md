@@ -20,3 +20,7 @@ BBC World and BBC Politics. The latter focuses on the UK; these feeds do not pro
 Summaries use feed excerpts and link to the original material. Selection and source availability limit coverage.
 
 [Weekly Frontier](../../README.md) · [All weekly editions](../../weekly/README.md)
+
+## Subscribe
+
+Follow this topic in your feed reader: [Atom](https://www.cyborgoat.com/weekly-frontier/feeds/politics.xml) · [RSS](https://www.cyborgoat.com/weekly-frontier/feeds/politics.rss.xml). New editions appear after publication.
