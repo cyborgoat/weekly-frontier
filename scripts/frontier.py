@@ -97,6 +97,15 @@ def select_candidates(rows, limit=40):
             if len(result) == limit: break
     return result
 
+def in_reporting_week(value, start, end):
+    try:
+        timestamp = dt.datetime.fromisoformat(value)
+        if timestamp.tzinfo is None:
+            return False
+        return start <= timestamp.astimezone(TZ).date() < end
+    except (ValueError, OverflowError, TypeError):
+        return False
+
 def generate(start,dry=False,regenerate=False):
     end=start+dt.timedelta(days=7); key=f'week-of-{start}'
     index=ROOT/f'weekly/{start.year}/{key}.md'
@@ -106,7 +115,7 @@ def generate(start,dry=False,regenerate=False):
     for topic in dict.fromkeys(s['topic'] for s in SOURCES):
         ids={s['id'] for s in SOURCES if s['topic']==topic}
         if not any(any(r.get(i,{}).get('ok') for i in ids) for r in reports): raise ValueError(f'No successful collection for {topic}')
-        candidates=[r for r in records() if (r['topic']==topic or (topic=='finance' and r['topic']=='business')) and start<=dt.datetime.fromisoformat(r['published']).astimezone(TZ).date()<end and len(r['text'])>80]
+        candidates=[r for r in records() if (r['topic']==topic or (topic=='finance' and r['topic']=='business')) and in_reporting_week(r['published'], start, end) and len(r['text'])>80]
         candidates=select_candidates(candidates, 80 if topic=='ai' else 40)
         body=f'# {"AI" if topic=="ai" else topic.title()}: {key}\n\n{reporting_period(start)}\nGenerated: {dt.datetime.now(TZ).isoformat()}\n\n'
         if candidates:

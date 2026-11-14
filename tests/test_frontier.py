@@ -50,3 +50,10 @@ class CandidateSelection(unittest.TestCase):
     def test_duplicate_urls_not_selected_twice(self):
         row=dict(source='lab',url='https://example.org/a',published='2026-11-12')
         self.assertEqual(frontier.select_candidates([row,row]),[row])
+
+class ReportingDates(unittest.TestCase):
+    def test_invalid_and_extreme_dates_are_excluded(self):
+        start=monday('2026-11-09'); end=start+dt.timedelta(days=7)
+        for value in ['0001-01-01T00:00:00+00:00','invalid',None,'2026-11-10T00:00:00']:
+            self.assertFalse(frontier.in_reporting_week(value,start,end))
+        self.assertTrue(frontier.in_reporting_week('2026-11-10T00:00:00+00:00',start,end))

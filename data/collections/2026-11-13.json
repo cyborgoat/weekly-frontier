@@ -43,5 +43,45 @@
     "ok": true,
     "entries": 10,
     "undated": 0
+  },
+  "arxiv-ai": {
+    "ok": true,
+    "entries": 1287,
+    "undated": 0
+  },
+  "huggingface": {
+    "ok": true,
+    "entries": 907,
+    "undated": 0
+  },
+  "deepmind": {
+    "ok": true,
+    "entries": 100,
+    "undated": 0
+  },
+  "openai": {
+    "ok": true,
+    "entries": 1387,
+    "undated": 0
+  },
+  "google-research": {
+    "ok": true,
+    "entries": 100,
+    "undated": 0
+  },
+  "bair": {
+    "ok": true,
+    "entries": 10,
+    "undated": 0
+  },
+  "interconnects": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "lilian-weng": {
+    "ok": true,
+    "entries": 53,
+    "undated": 0
   }
 }
