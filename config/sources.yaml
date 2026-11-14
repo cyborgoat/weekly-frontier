@@ -7,3 +7,11 @@
 - {id: bbc-business, topic: business, url: 'https://feeds.bbci.co.uk/news/business/rss.xml'}
 - {id: nature, topic: science, url: 'https://www.nature.com/nature.rss'}
 - {id: nasa, topic: science, url: 'https://www.nasa.gov/feed/'}
+- {id: arxiv-ai, topic: ai, kind: preprint, url: 'https://rss.arxiv.org/rss/cs.AI+cs.LG+cs.CL+cs.CV+stat.ML'}
+- {id: huggingface, topic: ai, kind: tooling, url: 'https://huggingface.co/blog/feed.xml'}
+- {id: deepmind, topic: ai, kind: lab, url: 'https://deepmind.google/blog/rss.xml'}
+- {id: openai, topic: ai, kind: lab, url: 'https://openai.com/news/rss.xml'}
+- {id: google-research, topic: ai, kind: lab, url: 'https://research.google/blog/rss/'}
+- {id: bair, topic: ai, kind: lab, url: 'https://bair.berkeley.edu/blog/feed.xml'}
+- {id: interconnects, topic: ai, kind: analysis, url: 'https://www.interconnects.ai/feed'}
+- {id: lilian-weng, topic: ai, kind: analysis, url: 'https://lilianweng.github.io/index.xml'}

@@ -1,6 +1,6 @@
 # Weekly Frontier
 
-English weekly news digests organized by technology, politics, finance, science, and business. Browse `topics/` or `weekly/`. Weeks start Monday in America/Los_Angeles and use `week-of-yyyy-mm-dd` filenames.
+English weekly news digests organized by AI, technology, politics, finance, science, and business. Browse `topics/` or `weekly/`. Weeks start Monday in America/Los_Angeles and use `week-of-yyyy-mm-dd` filenames.
 
 ## Setup
 
@@ -22,10 +22,12 @@ Generation requires collected records and reports from the requested week. `--re
 
 ## Sources and editorial policy
 
-Edit `config/sources.yaml` to add feeds. Nine initial feeds cover BBC, TechCrunch, Ars Technica, Federal Reserve, Nature, and NASA. BBC Business also supplies finance candidates. Political coverage needs broader geographic and publisher diversity.
+Edit `config/sources.yaml` to add feeds. Seventeen feeds cover AI papers, research labs, tooling and commentary alongside BBC, TechCrunch, Ars Technica, Federal Reserve, Nature, and NASA. BBC Business also supplies finance candidates. Political coverage needs broader geographic and publisher diversity.
 
 Summaries use feed excerpts, not full website articles. Links identify original sources. Daily polling reduces missing stories but cannot guarantee completeness. Disputed claims should be attributed; significance is analysis. Human review is required before merging.
 
 ## Current limitations
 
 The initial implementation selects recent candidates and asks the model to group significant stories. It does not perform independent fact checking. Generated JSON is validated only for source indices and required fields. Invalid responses fail the run. Generation refuses to update an open review PR; preserve edits and close the PR before regenerating. Automatic JSON repair, detailed usage metrics, and broader fixture tests remain follow-up work.
+
+AI coverage uses a combined arXiv feed plus seven lab, tooling, and commentary feeds. Weekly selection balances sources (up to 80 AI candidates) before choosing eight stories. This is a bounded sample, not an exhaustive literature review. Preprints and lab claims must be identified as such. Daily collection remains at 08:17 Los Angeles time; feeds are not real-time alerts.
