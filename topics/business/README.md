@@ -1,3 +1,3 @@
 # Business
 
-Weekly digests will appear here after the first collection week.
+- [week-of-2026-11-09](2026/week-of-2026-11-09.md)
