@@ -1,0 +1,43 @@
+name: Publish feeds
+on:
+  push:
+    branches: [main]
+    paths: ['weekly/**', 'topics/**', 'scripts/publish_feeds.py', 'requirements.txt', '.github/workflows/feeds.yaml']
+  pull_request:
+    paths: ['scripts/publish_feeds.py', 'tests/**', 'requirements.txt', '.github/workflows/feeds.yaml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: feeds-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests
+      - run: python scripts/publish_feeds.py
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .cache/feed-site
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

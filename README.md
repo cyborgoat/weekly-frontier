@@ -50,3 +50,7 @@ For source configuration, automation, and local commands, see the [maintainer gu
 ## License
 
 Repository materials are provided under the [MIT license](LICENSE). Linked articles and other source materials remain subject to their publishers’ terms.
+
+## Subscribe
+
+Follow Weekly Frontier in your feed reader: [Atom](https://www.cyborgoat.com/weekly-frontier/feed.xml) · [RSS](https://www.cyborgoat.com/weekly-frontier/feed.rss.xml). New editions appear after publication.

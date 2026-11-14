@@ -31,3 +31,11 @@ Summaries use feed excerpts, not full website articles. Links identify original 
 The initial implementation selects recent candidates and asks the model to group significant stories. It does not perform independent fact checking. Generated JSON is validated only for source indices and required fields. Invalid responses fail the run. Generation refuses to update an open review PR; preserve edits and close the PR before regenerating. Automatic JSON repair, detailed usage metrics, and broader fixture tests remain follow-up work.
 
 AI coverage uses a combined arXiv feed plus seven lab, tooling, and commentary feeds. Weekly selection balances sources (up to 80 AI candidates) before choosing eight stories. This is a bounded sample, not an exhaustive literature review. Preprints and lab claims must be identified as such. Daily collection remains at 08:17 Los Angeles time; feeds are not real-time alerts.
+
+## Publication feeds
+
+`python scripts/publish_feeds.py` builds Atom and RSS feeds in `.cache/feed-site/`, using committed Markdown only. Run from the repository root with dependencies installed. Use `--output` and `--base-url` to override the destination and public URL. Git history must be available (the Pages workflow checks out full history) to preserve publication and update timestamps. Stable entry IDs survive corrections and history rewrites. Feeds retain the latest 52 editions per stream.
+
+The Publish feeds workflow validates PRs and deploys only main to GitHub Pages. Enable Pages with GitHub Actions as the source. Only the generated feed directory is uploaded; raw data, credentials, configuration, and logs are not published. Readers receive summaries and source links, with absolute links to the GitHub Markdown archive. Atom uses `feed.xml` and `feeds/<topic>.xml`; RSS uses `feed.rss.xml` and `feeds/<topic>.rss.xml`.
+
+The public feed base URL is `https://www.cyborgoat.com/weekly-frontier/`, inherited from the account’s Pages domain. GitHub’s default Pages URL redirects there. The domain supports HTTPS; deployment publishes the project path. Update subscription links and the builder base URL together if hosting changes.
