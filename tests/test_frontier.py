@@ -39,3 +39,14 @@ class Completions(unittest.TestCase):
     def test_missing_choices(self):
         with self.assertRaisesRegex(ValueError,'no choices'):
             frontier.completion_text({'error':{'message':'do not print'}})
+
+class CandidateSelection(unittest.TestCase):
+    def test_volume_does_not_crowd_out_sources(self):
+        rows=[dict(source='arxiv',url=f'https://example.org/{i}',published='2026-11-13') for i in range(100)]
+        rows.append(dict(source='lab',url='https://example.org/lab',published='2026-11-12'))
+        selected=frontier.select_candidates(rows,4)
+        self.assertEqual(len(selected),4)
+        self.assertIn('lab',[r['source'] for r in selected])
+    def test_duplicate_urls_not_selected_twice(self):
+        row=dict(source='lab',url='https://example.org/a',published='2026-11-12')
+        self.assertEqual(frontier.select_candidates([row,row]),[row])
