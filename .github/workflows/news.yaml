@@ -1,0 +1,77 @@
+name: News archive
+on:
+  schedule:
+    - cron: '17 15,16 * * *'
+    - cron: '17 16,17 * * 1'
+  workflow_dispatch:
+    inputs:
+      command:
+        type: choice
+        options: [collect, generate]
+        default: collect
+      week_of:
+        description: Monday date (optional)
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: news-archive
+  cancel-in-progress: false
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - id: mode
+        env:
+          EVENT: ${{ github.event_name }}
+          COMMAND: ${{ inputs.command }}
+          WEEK: ${{ inputs.week_of }}
+        run: |
+          python - <<'PY'
+          import datetime, os
+          from zoneinfo import ZoneInfo
+          now=datetime.datetime.now(ZoneInfo('America/Los_Angeles'))
+          command=os.environ['COMMAND'] if os.environ['EVENT']=='workflow_dispatch' else ('collect' if now.hour==8 else 'generate' if now.hour==9 and now.weekday()==0 else '')
+          week=os.environ['WEEK'] or str(now.date()-datetime.timedelta(days=now.weekday()+7))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write(f'command={command}\nweek={week}\n')
+          PY
+      - if: steps.mode.outputs.command == 'collect'
+        run: |
+          python scripts/frontier.py collect
+          git config user.name 'weekly-frontier[bot]'
+          git config user.email 'weekly-frontier@users.noreply.github.com'
+          git add data
+          if ! git diff --cached --quiet; then
+            git commit -m 'Archive daily feed entries'
+            git push
+          fi
+      - if: steps.mode.outputs.command == 'generate'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WEEK: ${{ steps.mode.outputs.week }}
+        run: |
+          existing=$(gh pr list --head "news/week-of-$WEEK" --state open --json number --jq 'length')
+          if [ "$existing" != "0" ]; then
+            echo 'Existing review PR: close it after preserving edits before regenerating.'
+            exit 1
+          fi
+      - if: steps.mode.outputs.command == 'generate'
+        env:
+          LLM_BASE_URL: https://st8tp3ajl0df3n8b8l8qu.apigateway-cn-beijing.volceapi.com/v1
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          WEEK: ${{ steps.mode.outputs.week }}
+        run: python scripts/frontier.py generate --week-of "$WEEK"
+      - if: steps.mode.outputs.command == 'generate'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: news/week-of-${{ steps.mode.outputs.week }}
+          title: 'News: week-of-${{ steps.mode.outputs.week }}'
+          commit-message: Generate weekly news digest
+          body: 'Automated digest from archived feed excerpts. Review source coverage in the weekly index and factual accuracy before merging.'
