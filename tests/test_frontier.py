@@ -57,3 +57,23 @@ class ReportingDates(unittest.TestCase):
         for value in ['0001-01-01T00:00:00+00:00','invalid',None,'2026-11-10T00:00:00']:
             self.assertFalse(frontier.in_reporting_week(value,start,end))
         self.assertTrue(frontier.in_reporting_week('2026-11-10T00:00:00+00:00',start,end))
+
+class Navigation(unittest.TestCase):
+    def test_preserves_prose_and_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            for name in ['README.md','weekly/README.md','topics/ai/README.md']:
+                page=root/name; page.parent.mkdir(parents=True,exist_ok=True)
+                page.write_text('# Editorial introduction\n\n<!-- navigation:start -->\n<!-- navigation:end -->\n\nSource notes.\n')
+            with patch.object(frontier,'ROOT',root):
+                frontier.refresh_navigation()
+                self.assertIn('No editions published yet.',(root/'README.md').read_text())
+                edition=root/'weekly/2027/week-of-2026-12-28.md'
+                edition.parent.mkdir(); edition.write_text('# Edition')
+                frontier.refresh_navigation()
+                before=(root/'README.md').read_text()
+                frontier.refresh_navigation()
+                self.assertEqual(before,(root/'README.md').read_text())
+                self.assertIn('Editorial introduction',before)
+                self.assertIn('Source notes.',before)
+                self.assertIn('December 28, 2026–January 3, 2027',before)

@@ -106,6 +106,34 @@ def in_reporting_week(value, start, end):
     except (ValueError, OverflowError, TypeError):
         return False
 
+def refresh_navigation():
+    def label(path):
+        start = dt.date.fromisoformat(path.stem.removeprefix('week-of-'))
+        return reporting_period(start).removeprefix('Reporting week: ').split(' · ')[0]
+    def update(page, files, prefix):
+        if not page.exists(): return
+        lines = []
+        if files:
+            lines.append(f'Latest available: [{label(files[0])}]({prefix}{files[0].relative_to(page.parent)})')
+            start = dt.date.fromisoformat(files[0].stem.removeprefix('week-of-'))
+            if dt.datetime.now(TZ).date() < start + dt.timedelta(days=7):
+                lines.append('Current reporting week — coverage is incomplete.')
+            year = None
+            for f in files:
+                if f.parent.name != year:
+                    year = f.parent.name
+                    lines.extend(['', f'### {year}', ''])
+                lines.append(f'- [{label(f)}]({prefix}{f.relative_to(page.parent)})')
+        else: lines.append('No editions published yet.')
+        text = page.read_text()
+        block = '<!-- navigation:start -->\n' + '\n'.join(lines) + '\n<!-- navigation:end -->'
+        page.write_text(re.sub(r'<!-- navigation:start -->.*?<!-- navigation:end -->', lambda _: block, text, flags=re.S))
+    for page in (ROOT/'topics').glob('*/README.md'):
+        update(page, sorted(page.parent.glob('*/week-of-*.md'), reverse=True), '')
+    editions = sorted((ROOT/'weekly').glob('*/week-of-*.md'), reverse=True)
+    update(ROOT/'weekly/README.md', editions, '')
+    update(ROOT/'README.md', editions, '')
+
 def generate(start,dry=False,regenerate=False):
     end=start+dt.timedelta(days=7); key=f'week-of-{start}'
     index=ROOT/f'weekly/{start.year}/{key}.md'
@@ -136,9 +164,7 @@ def generate(start,dry=False,regenerate=False):
     for path,body in output.items():
         if dry: print(path,body)
         else: path.parent.mkdir(parents=True,exist_ok=True); path.write_text(body)
-    for topic in dict.fromkeys(s['topic'] for s in SOURCES):
-        p=ROOT/'topics'/topic
-        if not dry: (p/'README.md').write_text(f'# {"AI" if topic=="ai" else topic.title()}\n\n'+'\n'.join(f'- [{f.stem}]({f.relative_to(p)})' for f in sorted(p.glob('*/*.md'),reverse=True))+'\n')
+    if not dry: refresh_navigation()
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(); p.add_argument('command',choices=['collect','generate']); p.add_argument('--week-of'); p.add_argument('--dry-run',action='store_true'); p.add_argument('--regenerate',action='store_true'); a=p.parse_args()
