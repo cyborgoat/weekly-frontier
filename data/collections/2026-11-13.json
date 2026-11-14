@@ -1,0 +1,47 @@
+{
+  "bbc-tech": {
+    "ok": true,
+    "entries": 21,
+    "undated": 0
+  },
+  "techcrunch": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "ars": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "bbc-world": {
+    "ok": true,
+    "entries": 26,
+    "undated": 0
+  },
+  "bbc-politics": {
+    "ok": true,
+    "entries": 60,
+    "undated": 0
+  },
+  "fed": {
+    "ok": true,
+    "entries": 15,
+    "undated": 0
+  },
+  "bbc-business": {
+    "ok": true,
+    "entries": 56,
+    "undated": 0
+  },
+  "nature": {
+    "ok": true,
+    "entries": 75,
+    "undated": 0
+  },
+  "nasa": {
+    "ok": true,
+    "entries": 10,
+    "undated": 0
+  }
+}
