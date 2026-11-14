@@ -1,5 +1,10 @@
 # Weekly Frontier
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/weekly-frontier-logo-dark.png">
+  <img src="assets/brand/weekly-frontier-logo.png" alt="Weekly Frontier — folded-page W and rising horizon" width="640">
+</picture>
+
 A weekly reading companion for people following developments in AI, technology, politics, finance, science, and business. Browse concise briefings, explore a topic, and follow the source links for the original reporting.
 
 ## Read the latest edition
