@@ -1,3 +1,22 @@
 # Business
 
-- [week-of-2026-11-09](2026/week-of-2026-11-09.md)
+Follow companies, industries, markets, and changes in how business operates.
+
+## Briefings
+
+<!-- navigation:start -->
+Latest available: [November 9–15, 2026](2026/week-of-2026-11-09.md)
+Current reporting week — coverage is incomplete.
+
+### 2026
+
+- [November 9–15, 2026](2026/week-of-2026-11-09.md)
+<!-- navigation:end -->
+
+## Coverage and sources
+
+BBC Business. Coverage reflects the stories available from this feed.
+
+Summaries use feed excerpts and link to the original material. Selection and source availability limit coverage.
+
+[Weekly Frontier](../../README.md) · [All weekly editions](../../weekly/README.md)
