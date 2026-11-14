@@ -15,4 +15,6 @@ Current reporting week — coverage is incomplete.
 
 ## Subscribe
 
-Follow Weekly Frontier in your feed reader: [Atom](https://www.cyborgoat.com/weekly-frontier/feed.xml) · [RSS](https://www.cyborgoat.com/weekly-frontier/feed.rss.xml). New editions appear after publication.
+[![Subscribe via Atom](../assets/badges/atom.svg)](https://www.cyborgoat.com/weekly-frontier/feed.xml) [![Subscribe via RSS](../assets/badges/rss.svg)](https://www.cyborgoat.com/weekly-frontier/feed.rss.xml)
+
+Add either feed to your reader. New editions appear after publication.
