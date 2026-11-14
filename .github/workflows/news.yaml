@@ -63,7 +63,7 @@ jobs:
           fi
       - if: steps.mode.outputs.command == 'generate'
         env:
-          LLM_BASE_URL: https://st8tp3ajl0df3n8b8l8qu.apigateway-cn-beijing.volceapi.com/v1
+          LLM_BASE_URL: ${{ vars.LLM_BASE_URL || secrets.LLM_BASE_URL }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_MODEL: ${{ vars.LLM_MODEL || secrets.LLM_MODEL }}
           WEEK: ${{ steps.mode.outputs.week }}

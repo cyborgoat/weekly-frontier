@@ -6,7 +6,7 @@ Run the commands below from the repository root.
 
 Use Python 3.12 or newer. Create a virtual environment with `python3 -m venv .venv`, activate it with `source .venv/bin/activate`, then install `pip install -r requirements.txt`. Copy `.env.example` for reference; environment variables must be exported in your shell (the script does not load dotenv files). Set `LLM_API_KEY`, `LLM_MODEL`, and `LLM_BASE_URL`. Never commit credentials.
 
-In GitHub, set secret `LLM_API_KEY` and repository variable `LLM_MODEL`. Enable Actions permissions to write repository content and create pull requests. Branch protections may require adapting daily archive publishing to your repository policy.
+In GitHub, set secrets `LLM_API_KEY` and `LLM_BASE_URL`, and repository variable `LLM_MODEL`. The workflow also accepts the base URL as a repository variable and the model as a secret. Enable Actions permissions to write repository content and create pull requests. Branch protections may require adapting daily archive publishing to your repository policy.
 
 ## Commands
 
