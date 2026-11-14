@@ -25,3 +25,17 @@ class Collection(unittest.TestCase):
             with patch.object(frontier,'ROOT',Path(directory)):
                 with self.assertRaisesRegex(ValueError,'No successful collection'):
                     frontier.generate(monday('2026-11-09'))
+
+class Completions(unittest.TestCase):
+    def test_string_and_blocks(self):
+        for content in ['{"stories":[]}', [{'type':'text','text':'{"stories":[]}'}]]:
+            self.assertEqual(frontier.completion_text({'choices':[{'message':{'content':content},'finish_reason':'stop'}]}),'{"stories":[]}')
+    def test_reasoning_is_not_final_answer(self):
+        with self.assertRaisesRegex(ValueError,'no final answer'):
+            frontier.completion_text({'choices':[{'message':{'reasoning_content':'private reasoning'},'finish_reason':'stop'}]})
+    def test_token_exhaustion(self):
+        with self.assertRaisesRegex(ValueError,'token budget'):
+            frontier.completion_text({'choices':[{'message':{},'finish_reason':'length'}]})
+    def test_missing_choices(self):
+        with self.assertRaisesRegex(ValueError,'no choices'):
+            frontier.completion_text({'error':{'message':'do not print'}})
