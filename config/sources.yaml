@@ -1,0 +1,9 @@
+- {id: bbc-tech, topic: technology, url: 'https://feeds.bbci.co.uk/news/technology/rss.xml'}
+- {id: techcrunch, topic: technology, url: 'https://techcrunch.com/feed/'}
+- {id: ars, topic: technology, url: 'https://feeds.arstechnica.com/arstechnica/index'}
+- {id: bbc-world, topic: politics, url: 'https://feeds.bbci.co.uk/news/world/rss.xml'}
+- {id: bbc-politics, topic: politics, url: 'https://feeds.bbci.co.uk/news/politics/rss.xml'}
+- {id: fed, topic: finance, url: 'https://www.federalreserve.gov/feeds/press_monetary.xml'}
+- {id: bbc-business, topic: business, url: 'https://feeds.bbci.co.uk/news/business/rss.xml'}
+- {id: nature, topic: science, url: 'https://www.nature.com/nature.rss'}
+- {id: nasa, topic: science, url: 'https://www.nasa.gov/feed/'}
