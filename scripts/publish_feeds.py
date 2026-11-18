@@ -10,6 +10,7 @@ from urllib.parse import urljoin
 import uuid
 import xml.etree.ElementTree as ET
 import markdown
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = 'https://github.com/cyborgoat/weekly-frontier'
@@ -29,6 +30,8 @@ def timestamps(root, path):
 
 def rendered(root, path):
     text = path.read_text()
+    if text.startswith('---\n'):
+        text = text.split('---\n', 2)[2]
     # Compatibility with older editions; diagnostics never enter feeds.
     text = text.split('\nCollection reports:')[0]
     text = re.sub(r'^Generated:.*\n', '', text, flags=re.M)
@@ -68,6 +71,24 @@ def entries(root, topic=None):
     return result
 
 
+def article_entries(root, topic=None):
+    result = []
+    directory = root/'articles'
+    paths = directory.glob(f'{topic or "*"}/*/*/*.md')
+    for path in paths:
+        text = path.read_text()
+        if not text.startswith('---\n'): raise ValueError(f'Missing article metadata: {path}')
+        metadata = yaml.safe_load(text.split('---\n', 2)[1])
+        if not isinstance(metadata, dict) or not all(k in metadata for k in ['id', 'title', 'topic', 'published']):
+            raise ValueError(f'Invalid article metadata: {path}')
+        published, updated = timestamps(root, path)
+        relative = path.relative_to(root).as_posix()
+        result.append(dict(id='urn:uuid:'+str(uuid.uuid5(uuid.NAMESPACE_URL, REPO+'/articles/'+metadata['id'])),
+                           title=metadata['title'], url=REPO+'/blob/main/'+relative,
+                           content=rendered(root, path), published=published, updated=updated))
+    return sorted(result, key=lambda item: (item['published'], item['id']), reverse=True)[:200]
+
+
 def element(parent, tag, text=None, **attrs):
     child = ET.SubElement(parent, tag, attrs)
     if text is not None: child.text = text
@@ -83,7 +104,7 @@ def write_feeds(output, stem, title, items, base):
     element(feed,f'{{{ATOM}}}link',href=REPO,rel='alternate')
     author=element(feed,f'{{{ATOM}}}author');element(author,f'{{{ATOM}}}name','Weekly Frontier')
     channel=element(ET.Element('rss',version='2.0'),'channel')
-    for tag,value in [('title',title),('link',REPO),('description','Weekly briefings with original source links.'),('language','en')]: element(channel,tag,value)
+    for tag,value in [('title',title),('link',REPO),('description','Selected reporting with original source links.'),('language','en')]: element(channel,tag,value)
     element(channel,f'{{{ATOM}}}link',href=urljoin(base,stem+'.rss.xml'),rel='self',type='application/rss+xml')
     for item in items:
         entry=element(feed,f'{{{ATOM}}}entry')
@@ -109,9 +130,15 @@ def build(root=ROOT, output=None, base=BASE):
         stem=f'feeds/{topic}' if topic else 'feed'
         write_feeds(output,stem,title,entries(root,topic),base)
         links.append(f'<li>{escape(title)}: <a href="{stem}.xml">Atom</a> · <a href="{stem}.rss.xml">RSS</a></li>')
-    (output/'index.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Subscribe to Weekly Frontier</title><h1>Subscribe to Weekly Frontier</h1><p>Copy a feed link into your feed reader. New editions appear after publication.</p><ul>'+''.join(links)+f'</ul><p><a href="{REPO}">Read the archive</a></p></html>')
+    article_links=[]
+    for topic in [None,*TOPICS]:
+        title='Weekly Frontier articles' + (f' — {"AI" if topic=="ai" else topic.title()}' if topic else '')
+        stem=f'feeds/articles/{topic}' if topic else 'articles/feed'
+        write_feeds(output,stem,title,article_entries(root,topic),base)
+        article_links.append(f'<li>{escape(title)}: <a href="{stem}.xml">Atom</a> · <a href="{stem}.rss.xml">RSS</a></li>')
+    (output/'index.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Subscribe to Weekly Frontier</title><h1>Subscribe to Weekly Frontier</h1><p>Copy a feed link into your feed reader. Articles and editions appear after review and publication.</p><h2>Weekly editions</h2><ul>'+''.join(links)+'</ul><h2>Daily articles</h2><ul>'+''.join(article_links)+f'</ul><p><a href="{REPO}">Read the archive</a></p></html>')
     (output/'.nojekyll').touch()
-    print(f'Built 14 feeds in {output}')
+    print(f'Built 28 feeds in {output}')
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path);parser.add_argument('--base-url',default=BASE)

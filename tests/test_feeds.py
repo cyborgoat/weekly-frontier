@@ -17,7 +17,7 @@ class PublicationFeeds(unittest.TestCase):
             dates=(dt.datetime(2026,11,14,tzinfo=dt.timezone.utc),dt.datetime(2026,11,15,tzinfo=dt.timezone.utc))
             with patch.object(feeds,'timestamps',return_value=dates):
                 output=root/'output';feeds.build(root,output)
-                self.assertEqual(len(list(output.rglob('*.xml'))),14)
+                self.assertEqual(len(list(output.rglob('*.xml'))),28)
                 atom=feedparser.parse((output/'feed.xml').read_bytes())
                 rss=feedparser.parse((output/'feed.rss.xml').read_bytes())
                 self.assertFalse(atom.bozo);self.assertFalse(rss.bozo)

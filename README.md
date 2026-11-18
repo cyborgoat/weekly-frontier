@@ -31,9 +31,9 @@ Current reporting week — coverage is incomplete.
 
 ## How the briefings work
 
-Feeds are gathered daily, with a weekly briefing prepared on Mondays for the previous Monday–Sunday. Reporting periods use Los Angeles time, including daylight saving changes.
+Feeds are gathered daily at **10:30 Los Angeles time**, including daylight saving changes. Each daily pull request contains feed archives and up to eight selected standalone articles per topic. Browse [articles by collection date](articles/daily/) or [explore the article archive](articles/README.md).
 
-Each topic includes up to eight selected stories, a short summary, an explanation of why it matters, and links to the original sources. Drafts are submitted through pull requests for review before publication.
+Weekly preparation starts on Mondays at **11:30 Los Angeles time**, covering the previous Monday–Sunday by source publication date. It waits for relevant daily PRs to be resolved, then summarizes approved articles with up to eight stories per topic and links to their article pages. Waiting editions are retried daily at 11:30. Articles and weekly editions require PR review before publication.
 
 ## Sources and reading notes
 
@@ -56,3 +56,5 @@ Repository materials are provided under the [MIT license](LICENSE). Linked artic
 [![Subscribe via Atom](assets/badges/atom.svg)](https://www.cyborgoat.com/weekly-frontier/feed.xml) [![Subscribe via RSS](assets/badges/rss.svg)](https://www.cyborgoat.com/weekly-frontier/feed.rss.xml)
 
 Add either feed to your reader. New editions appear after publication.
+
+For individual articles, subscribe separately via [Atom](https://www.cyborgoat.com/weekly-frontier/articles/feed.xml) or [RSS](https://www.cyborgoat.com/weekly-frontier/articles/feed.rss.xml). Weekly subscriptions continue to deliver weekly editions only. [All subscription options](https://www.cyborgoat.com/weekly-frontier/) include article feeds for each topic.
