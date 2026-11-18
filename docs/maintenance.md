@@ -1,41 +1,63 @@
 # Maintaining Weekly Frontier
 
-Run the commands below from the repository root.
+Run commands from the repository root.
 
 ## Setup
 
-Use Python 3.12 or newer. Create a virtual environment with `python3 -m venv .venv`, activate it with `source .venv/bin/activate`, then install `pip install -r requirements.txt`. Copy `.env.example` for reference; environment variables must be exported in your shell (the script does not load dotenv files). Set `LLM_API_KEY`, `LLM_MODEL`, and `LLM_BASE_URL`. Never commit credentials.
+Use Python 3.12 or newer. Create a virtual environment with `python3 -m venv .venv`, activate it with `source .venv/bin/activate`, then install `pip install -r requirements.txt`. Copy `.env.example` for reference; variables must be exported (dotenv files are not loaded). Set `LLM_API_KEY`, `LLM_MODEL`, and `LLM_BASE_URL`. Never commit credentials.
 
-In GitHub, set secrets `LLM_API_KEY` and `LLM_BASE_URL`, and repository variable `LLM_MODEL`. The workflow also accepts the base URL as a repository variable and the model as a secret. Enable Actions permissions to write repository content and create pull requests. Branch protections may require adapting daily archive publishing to your repository policy.
+In GitHub, configure secrets `LLM_API_KEY` and `LLM_BASE_URL`, and repository variable `LLM_MODEL`. The workflow also accepts the base URL as a variable and the model as a secret. Enable Actions permissions to write repository content and create pull requests. Daily archives and briefing changes go through review PRs rather than direct pushes to the default branch.
 
 ## Commands
 
 ```sh
 python scripts/frontier.py collect --dry-run
-python scripts/frontier.py collect
-python scripts/frontier.py generate --week-of 2026-11-09 --dry-run
-python scripts/frontier.py generate --week-of 2026-11-09
+python scripts/frontier.py daily --dry-run
+python scripts/frontier.py daily --date 2026-11-18
+python scripts/frontier.py generate --week-of 2026-11-16 --date 2026-11-18 --dry-run
 python -m unittest discover -s tests
 ```
 
-Generation requires collected records and reports from the requested week. `--regenerate` permits replacing existing local digests. Review changes before committing. Daily runs archive feed text at 08:17 LA; Monday generation runs at 09:17 LA. GitHub schedules can be delayed. Manual workflow dispatch supports recovery; missed feed history cannot always be reconstructed.
+`collect` archives feed records only. `daily` collects new records and appends selected stories to the current week's topic briefings. `generate --week-of` appends eligible archived records to a specified reporting week, defaulting to the previous week. `--date` specifies the collection/coverage date in Los Angeles time; polling always reads current feeds and cannot reconstruct expired history. Future publication timestamps are excluded.
 
-## Source configuration and editorial policy
+Each update selects up to eight new stories per topic, controlled by `stories_per_topic` in `config/settings.yaml`. The total number of stories in a weekly page may exceed eight as the week grows. Existing summaries, significance prose, source citations, and reviewer edits are preserved. There are no standalone article pages or separate article feeds.
 
-Edit `config/sources.yaml` to add feeds. Seventeen feeds cover AI papers, research labs, tooling and commentary alongside BBC, TechCrunch, Ars Technica, Federal Reserve, Nature, and NASA. BBC Business also supplies finance candidates. Political coverage needs broader geographic and publisher diversity.
+A `data/editions/week-of-YYYY-MM-DD.json` checkpoint records considered URLs per topic, the coverage date, and whether the reporting period has ended. Reruns skip already considered records and existing source URLs. `--regenerate` reconsiders previously unselected archive records; it still preserves existing stories. Existing briefing text is supplied to the model to help skip duplicate events reported under different URLs. Reviewers should check duplicate coverage because this editorial matching is not exact.
 
-Summaries use feed excerpts, not full website articles. Links identify original sources. Daily polling reduces missing stories but cannot guarantee completeness. Disputed claims should be attributed; significance is analysis. Human review is required before merging.
+Generation validates every topic before writing reader-facing pages and checkpoints. Raw archives may remain after generation failure, allowing a local retry without losing collected records. Dry runs write nothing, but fetch feeds and may call the model. Local commands operate on the current checkout; they do not query GitHub review state or publish PRs.
 
-## Current limitations
+## Schedule and review lifecycle
 
-The initial implementation selects recent candidates and asks the model to group significant stories. It does not perform independent fact checking. Generated JSON is validated only for source indices and required fields. Invalid responses fail the run. Generation refuses to update an open review PR; preserve edits and close the PR before regenerating. Automatic JSON repair, detailed usage metrics, and broader fixture tests remain follow-up work.
+The News archive workflow runs at **10:30 America/Los_Angeles daily** to collect feeds and update the current Monday–Sunday briefing. Paired UTC schedules and a local-hour gate cover PST and PDT. GitHub can delay scheduled execution; these are target times, not real-time guarantees.
 
-AI coverage uses a combined arXiv feed plus seven lab, tooling, and commentary feeds. Weekly selection balances sources (up to 80 AI candidates) before choosing eight stories. This is a bounded sample, not an exhaustive literature review. Preprints and lab claims must be identified as such. Daily collection remains at 08:17 Los Angeles time; feeds are not real-time alerts.
+There is one open review PR per reporting week. Its branch begins `news/week-of-YYYY-MM-DD-update-<first-update-date>`. Daily runs resume that PR from its latest head, merge the selected base branch, and append new content. Reviewer commits are preserved, and the workflow never force-pushes. A merge conflict or concurrent reviewer push fails safely; resolve conflicts on the review branch and rerun.
+
+**Merging before the week ends is supported.** It publishes the coverage accumulated so far. The next day's run starts from the merged pages and opens a fresh update PR for the same reporting week. A same-day rerun after merging does not recreate that update. A rejected PR is not silently resurrected; reopen the latest rejected weekly review to resume updates.
+
+Weekly Markdown stays at `weekly/<year>/week-of-YYYY-MM-DD.md` and `topics/<topic>/<year>/week-of-YYYY-MM-DD.md`. Current-week pages show a coverage date and an in-progress notice. Navigation points to the latest available reporting week.
+
+At **11:30 daily**, the workflow checks the previous reporting week. From Monday onward it can append Sunday stories captured by later polling and mark the reporting period as ended. It reads pending archive records as well as merged records, so Monday's current-week PR does not need to merge before Sunday stories can be summarized. Previously selected or considered URLs are not duplicated. No independently rewritten final edition is created.
+
+Manual dispatch supports `daily` or `generate`, an optional collection/coverage date, and an optional Monday date. It runs the selected branch and targets content PRs to that branch, allowing feature-branch testing before merging. Scheduled runs use the default branch. Local `daily` always targets its date's current week; workflow dispatch also accepts an explicit week override.
+
+Orchestration lives in `scripts/news_workflow.py` and uses the runner's Git and GitHub CLI. It reads pending archives for deduplication, collects, then checks out the open review head before modifying content. A pushed branch without a PR, for example after an API failure, can be recovered by opening its PR manually. Do not run orchestration from an untrusted checkout with publishing credentials.
+
+GitHub's workflow token does not trigger additional workflows when it opens or updates a PR. The news job therefore runs tests and builds publication feeds before pushing. Human-created or updated content PRs also trigger Publish feeds validation. Publication occurs only after merging to main.
+
+## Sources and editorial policy
+
+Edit `config/sources.yaml` to add feeds. The current **17 source feeds are unchanged**. They cover AI papers, research labs, tooling and commentary alongside BBC, TechCrunch, Ars Technica, Federal Reserve, Nature, and NASA. BBC Business also supplies finance candidates. Political coverage needs broader geographic and publisher diversity.
+
+The source-feed count is separate from the limit on newly selected stories. Candidate selection balances publishers, considering up to 80 AI candidates and 40 for other topics per update. This is a bounded selection, not an exhaustive survey.
+
+Summaries use feed excerpts rather than full website articles. Daily polling cannot guarantee completeness. Attribute disputed claims and lab claims, identify preprints as unreviewed, and treat significance as analysis. Human review is required before merging. Model generation does not independently fact-check stories; invalid responses fail the run instead of being silently repaired.
+
+Feed requests use a 60-second timeout. Model calls use a 10-second connection timeout and configurable `llm_timeout_seconds` read timeout (300 seconds by default). Transient request failures are retried up to three attempts. Collection and topic-generation progress appear in workflow logs. The live daily test fetched all 17 feeds but could not connect reliably to the configured model gateway from GitHub Actions; that gateway must be reachable before live generation can complete.
 
 ## Publication feeds
 
-`python scripts/publish_feeds.py` builds Atom and RSS feeds in `.cache/feed-site/`, using committed Markdown only. Run from the repository root with dependencies installed. Use `--output` and `--base-url` to override the destination and public URL. Git history must be available (the Pages workflow checks out full history) to preserve publication and update timestamps. Stable entry IDs survive corrections and history rewrites. Feeds retain the latest 52 editions per stream.
+`python scripts/publish_feeds.py` builds the original 14 Atom/RSS files in `.cache/feed-site/` from committed weekly Markdown. Use `--output` and `--base-url` to override the destination and public URL. Full Git history preserves the first publication timestamp and latest update timestamp. Stable entry IDs survive daily changes and corrections. Reader behavior for existing-entry updates varies by application.
 
-The Publish feeds workflow validates PRs and deploys only main to GitHub Pages. Enable Pages with GitHub Actions as the source. Only the generated feed directory is uploaded; raw data, credentials, configuration, and logs are not published. Readers receive summaries and source links, with absolute links to the GitHub Markdown archive. Atom uses `feed.xml` and `feeds/<topic>.xml`; RSS uses `feed.rss.xml` and `feeds/<topic>.rss.xml`.
+Feeds retain the latest 52 editions per stream: `feed.xml`, `feed.rss.xml`, `feeds/<topic>.xml`, and `feeds/<topic>.rss.xml`. Topic briefings are embedded in the main edition feed. Only generated public content is uploaded to Pages; raw archives, credentials, configuration, and logs are excluded. Existing historical pages, subscription URLs, and entry IDs remain unchanged.
 
-The public feed base URL is `https://www.cyborgoat.com/weekly-frontier/`, inherited from the account’s Pages domain. GitHub’s default Pages URL redirects there. The domain supports HTTPS; deployment publishes the project path. Update subscription links and the builder base URL together if hosting changes.
+Enable Pages with GitHub Actions as the source. The public base URL is `https://www.cyborgoat.com/weekly-frontier/`, inherited from the account's Pages domain. Update subscription links and the builder base URL together if hosting changes.

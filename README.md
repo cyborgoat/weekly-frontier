@@ -31,9 +31,11 @@ Current reporting week — coverage is incomplete.
 
 ## How the briefings work
 
-Feeds are gathered daily, with a weekly briefing prepared on Mondays for the previous Monday–Sunday. Reporting periods use Los Angeles time, including daylight saving changes.
+Feeds are gathered daily at **10:30 Los Angeles time**, including daylight saving changes. Each run updates the current Monday–Sunday briefing, appending up to eight new selected stories per topic while preserving earlier summaries and reviewer edits. The weekly pages grow through the week; stories remain sections within the topic briefings.
 
-Each topic includes up to eight selected stories, a short summary, an explanation of why it matters, and links to the original sources. Drafts are submitted through pull requests for review before publication.
+Daily runs update the week's open review PR. If that PR has been merged, the next daily run opens a fresh update PR for the same weekly pages. Merge whenever you want to publish the coverage so far. Existing subscriptions keep the same edition identity as its content is updated.
+
+The previous week's briefing is finalized from **Monday at 11:30 Los Angeles time**, with daily retries to capture late-collected Sunday stories. Reporting periods use source publication dates in Los Angeles time. Current-week coverage is labeled as in progress.
 
 ## Sources and reading notes
 
@@ -55,4 +57,4 @@ Repository materials are provided under the [MIT license](LICENSE). Linked artic
 
 [![Subscribe via Atom](assets/badges/atom.svg)](https://www.cyborgoat.com/weekly-frontier/feed.xml) [![Subscribe via RSS](assets/badges/rss.svg)](https://www.cyborgoat.com/weekly-frontier/feed.rss.xml)
 
-Add either feed to your reader. New editions appear after publication.
+Add either feed to your reader. Each week keeps a stable feed entry; its content and update timestamp change as daily updates are reviewed and merged. Feed readers may handle updates differently.
