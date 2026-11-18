@@ -1,7 +1,7 @@
 name: News archive
 on:
   schedule:
-    # 10:30 collection and 11:30 weekly retries in LA, across PST/PDT.
+    # 10:30 current-week updates and 11:30 previous-week finalization in LA.
     - cron: '30 17,18,19 * * *'
   workflow_dispatch:
     inputs:
@@ -12,7 +12,7 @@ on:
       date:
         description: Collection date YYYY-MM-DD (optional; cannot reconstruct expired feed history)
       week_of:
-        description: Monday date (optional; otherwise retry overdue editions)
+        description: Monday date (optional; daily defaults to current week, generate to previous week)
 permissions:
   contents: write
   pull-requests: write

@@ -2,9 +2,9 @@ name: Publish feeds
 on:
   push:
     branches: [main]
-    paths: ['weekly/**', 'topics/**', 'articles/**', 'scripts/publish_feeds.py', 'requirements.txt', '.github/workflows/feeds.yaml']
+    paths: ['weekly/**', 'topics/**', 'scripts/publish_feeds.py', 'requirements.txt', '.github/workflows/feeds.yaml']
   pull_request:
-    paths: ['weekly/**', 'topics/**', 'articles/**', 'data/daily/**', 'scripts/**', 'config/**', 'tests/**', 'requirements.txt', '.github/workflows/**']
+    paths: ['weekly/**', 'topics/**', 'data/editions/**', 'scripts/**', 'config/**', 'tests/**', 'requirements.txt', '.github/workflows/**']
   workflow_dispatch:
 permissions:
   contents: read

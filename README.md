@@ -31,9 +31,11 @@ Current reporting week — coverage is incomplete.
 
 ## How the briefings work
 
-Feeds are gathered daily at **10:30 Los Angeles time**, including daylight saving changes. Each daily pull request contains feed archives and up to eight selected standalone articles per topic. Browse [articles by collection date](articles/daily/) or [explore the article archive](articles/README.md).
+Feeds are gathered daily at **10:30 Los Angeles time**, including daylight saving changes. Each run updates the current Monday–Sunday briefing, appending up to eight new selected stories per topic while preserving earlier summaries and reviewer edits. The weekly pages grow through the week; stories remain sections within the topic briefings.
 
-Weekly preparation starts on Mondays at **11:30 Los Angeles time**, covering the previous Monday–Sunday by source publication date. It waits for relevant daily PRs to be resolved, then summarizes approved articles with up to eight stories per topic and links to their article pages. Waiting editions are retried daily at 11:30. Articles and weekly editions require PR review before publication.
+Daily runs update the week's open review PR. If that PR has been merged, the next daily run opens a fresh update PR for the same weekly pages. Merge whenever you want to publish the coverage so far. Existing subscriptions keep the same edition identity as its content is updated.
+
+The previous week's briefing is finalized from **Monday at 11:30 Los Angeles time**, with daily retries to capture late-collected Sunday stories. Reporting periods use source publication dates in Los Angeles time. Current-week coverage is labeled as in progress.
 
 ## Sources and reading notes
 
@@ -55,6 +57,4 @@ Repository materials are provided under the [MIT license](LICENSE). Linked artic
 
 [![Subscribe via Atom](assets/badges/atom.svg)](https://www.cyborgoat.com/weekly-frontier/feed.xml) [![Subscribe via RSS](assets/badges/rss.svg)](https://www.cyborgoat.com/weekly-frontier/feed.rss.xml)
 
-Add either feed to your reader. New editions appear after publication.
-
-For individual articles, subscribe separately via [Atom](https://www.cyborgoat.com/weekly-frontier/articles/feed.xml) or [RSS](https://www.cyborgoat.com/weekly-frontier/articles/feed.rss.xml). Weekly subscriptions continue to deliver weekly editions only. [All subscription options](https://www.cyborgoat.com/weekly-frontier/) include article feeds for each topic.
+Add either feed to your reader. Each week keeps a stable feed entry; its content and update timestamp change as daily updates are reviewed and merged. Feed readers may handle updates differently.
