@@ -49,6 +49,8 @@ Summaries use feed excerpts, not full website articles. Daily polling cannot gua
 
 Candidate selection balances sources, taking up to 80 AI candidates and 40 for other topics. `daily_stories_per_topic` and `stories_per_topic` in `config/settings.yaml` default to eight. This is a bounded selection, not an exhaustive survey. Invalid model responses fail generation instead of being silently repaired.
 
+Feed requests use a 60-second timeout. Model calls use a separate 10-second connection timeout and configurable `llm_timeout_seconds` read timeout (300 seconds by default), allowing the model to finish longer editorial responses. Transient request failures are retried up to three attempts. Collection and topic-generation progress appear in workflow logs.
+
 ## Publication feeds
 
 `python scripts/publish_feeds.py` builds Atom and RSS in `.cache/feed-site/`, using committed Markdown only. Use `--output` and `--base-url` to override the destination and public URL. Full Git history preserves publication/update timestamps. Stable entry IDs survive corrections. Only generated public content is uploaded to Pages; raw archives, credentials, configuration, and logs are excluded.

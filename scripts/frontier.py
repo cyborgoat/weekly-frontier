@@ -8,9 +8,10 @@ SETTINGS = yaml.safe_load((ROOT/'config/settings.yaml').read_text())
 SOURCES = yaml.safe_load((ROOT/'config/sources.yaml').read_text())
 
 def request(method, url, **kw):
+    timeout = kw.pop('timeout', 60)
     for attempt in range(3):
         try:
-            r = requests.request(method, url, timeout=60, **kw); r.raise_for_status(); return r
+            r = requests.request(method, url, timeout=timeout, **kw); r.raise_for_status(); return r
         except requests.RequestException:
             if attempt == 2: raise
             time.sleep(2 ** attempt)
@@ -45,6 +46,7 @@ def collect(dry=False, date=None, known_urls=()):
     date = date or now.date()
     known={r['url'] for r in records()} | set(known_urls)
     for s in SOURCES:
+        print(f'Collecting {s["id"]}', flush=True)
         try:
             feed=feedparser.parse(request('GET',s['url']).content)
             if feed.bozo and not feed.entries: raise ValueError('Invalid feed')
@@ -57,7 +59,7 @@ def collect(dry=False, date=None, known_urls=()):
                 known.add(url)
                 rows.append(dict(source=s['id'],topic=s['topic'],url=url,title=e.get('title',''),text=re.sub('<[^>]+>',' ',e.get('summary',''))[:12000],published=dt.datetime(*date[:6],tzinfo=dt.timezone.utc).isoformat(),collected=now.isoformat()))
         except Exception as exc: outcomes[s['id']]={'ok':False,'error':str(exc)}
-    print(json.dumps(outcomes,indent=2))
+    print(json.dumps(outcomes,indent=2), flush=True)
     if not dry:
         directory=ROOT/'data/articles'; directory.mkdir(parents=True,exist_ok=True)
         with (directory/f'{date}.jsonl').open('a') as f:
@@ -152,6 +154,7 @@ def weekly_page(start, links, highlights):
 
 def model_json(instructions, payload):
     response = request('POST', os.environ['LLM_BASE_URL'].rstrip('/') + '/chat/completions',
+        timeout=(10, SETTINGS.get('llm_timeout_seconds', 300)),
         headers={'Authorization': 'Bearer ' + os.environ['LLM_API_KEY']},
         json={'model': os.environ['LLM_MODEL'], 'max_tokens': SETTINGS['max_tokens'],
               'messages': [{'role': 'system', 'content':
@@ -256,6 +259,7 @@ def daily(date, dry=False, pending_articles=(), pending_urls=()):
             80 if topic == 'ai' else 40)
         if not candidates: continue
         covered = related_coverage(existing.values(), candidates)
+        print(f'Preparing {topic}: {len(candidates)} candidates', flush=True)
         parsed = model_json(
             f'Select up to {SETTINGS.get("daily_stories_per_topic", 8)} significant distinct stories. '
             'Combine sources describing the same event. Skip events already in existing_articles, even with different URLs. '
@@ -288,6 +292,7 @@ def daily(date, dry=False, pending_articles=(), pending_urls=()):
             created.append(dict(metadata, path=path.as_posix(), body=body))
             existing[identity] = created[-1]
             used.update(r['url'] for r in selected)
+        print(f'Prepared {topic}: {len(stories)} articles', flush=True)
     # Date-specific indexes avoid conflicts between simultaneously open daily PRs.
     output.update(article_indexes(created, date))
     weeks = sorted({str(dt.datetime.fromisoformat(r['published']).astimezone(TZ).date() -

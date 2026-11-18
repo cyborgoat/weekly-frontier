@@ -27,6 +27,20 @@ class Collection(unittest.TestCase):
                     frontier.generate(monday('2026-11-09'))
 
 class Completions(unittest.TestCase):
+    def test_model_has_separate_read_timeout(self):
+        import os
+        with patch.dict(os.environ, LLM_BASE_URL='https://example.org/v1', LLM_API_KEY='test', LLM_MODEL='test'), \
+             patch.object(frontier, 'request', return_value=Mock(json=lambda: {'choices': [{'message': {'content': '{"stories":[]}'}}]})) as request:
+            self.assertEqual(frontier.model_json('Select stories.', []), {'stories': []})
+        self.assertEqual(request.call_args.kwargs['timeout'], (10, 300))
+
+    def test_request_forwards_timeout_override(self):
+        with patch.object(frontier.requests, 'request', return_value=Mock()) as request:
+            frontier.request('GET', 'https://example.org')
+            self.assertEqual(request.call_args.kwargs['timeout'], 60)
+            frontier.request('POST', 'https://example.org', timeout=(10, 300))
+            self.assertEqual(request.call_args.kwargs['timeout'], (10, 300))
+
     def test_string_and_blocks(self):
         for content in ['{"stories":[]}', [{'type':'text','text':'{"stories":[]}'}]]:
             self.assertEqual(frontier.completion_text({'choices':[{'message':{'content':content},'finish_reason':'stop'}]}),'{"stories":[]}')
