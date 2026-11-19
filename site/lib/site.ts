@@ -38,6 +38,12 @@ export function feedUrl(stem: string) {
   return `${siteUrl}/${stem}.xml`;
 }
 
+/** Public asset path under GitHub Pages basePath (next/image omits it when unoptimized). */
+export function assetPath(path: string) {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `${basePath}${normalized}`;
+}
+
 export function topicLabel(topic: string) {
   return TOPIC_LABELS[topic as TopicSlug] ?? topic;
 }

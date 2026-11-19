@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { SubscribePanel } from "@/components/SubscribePanel";
 import { TopicFilter } from "@/components/TopicFilter";
 import { Button } from "@/components/ui/button";
@@ -22,22 +22,7 @@ export default function HomePage() {
             }}
           />
           <div className="relative max-w-3xl">
-            <Image
-              src="/brand/weekly-frontier-logo.png"
-              alt="Weekly Frontier"
-              width={640}
-              height={214}
-              className="h-auto w-full max-w-xl dark:hidden"
-              priority
-            />
-            <Image
-              src="/brand/weekly-frontier-logo-dark.png"
-              alt="Weekly Frontier"
-              width={640}
-              height={214}
-              className="hidden h-auto w-full max-w-xl dark:block"
-              priority
-            />
+            <BrandLogo className="h-auto w-full max-w-xl" priority />
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Concise, source-linked briefings on AI, technology, politics,
               finance, science, and business — organized by week, readable like a

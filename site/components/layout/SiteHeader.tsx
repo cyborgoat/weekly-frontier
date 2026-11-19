@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { ThemeToggleButton } from "@/components/theme-toggle-button";
 import { Button } from "@/components/ui/button";
 import { portfolioUrl } from "@/lib/site";
@@ -16,22 +16,7 @@ export function SiteHeader() {
       <div className="wide-shell flex h-14 items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/" className="flex min-w-0 items-center gap-2">
-            <Image
-              src="/brand/weekly-frontier-logo.png"
-              alt="Weekly Frontier"
-              width={160}
-              height={53}
-              className="h-7 w-auto dark:hidden"
-              priority
-            />
-            <Image
-              src="/brand/weekly-frontier-logo-dark.png"
-              alt="Weekly Frontier"
-              width={160}
-              height={53}
-              className="hidden h-7 w-auto dark:block"
-              priority
-            />
+            <BrandLogo className="h-7 w-auto" priority />
           </Link>
           <span className="hidden text-muted-foreground sm:inline" aria-hidden>
             /
