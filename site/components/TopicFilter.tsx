@@ -125,16 +125,16 @@ export function TopicFilter({ editions }: TopicFilterProps) {
             {edition.coverage ? (
               <p className="meta-text mt-2">{edition.coverage}</p>
             ) : null}
-            <ul className="mt-4 space-y-2">
+            <ul className="story-list mt-4 space-y-2.5">
               {previews(edition).map((item) => (
-                <li key={item.key}>
+                <li key={item.key} className="leading-snug">
                   {item.kicker ? (
-                    <p className="meta-text">{item.kicker}</p>
+                    <span className="meta-text mr-2">{item.kicker}</span>
                   ) : null}
                   {item.external ? (
                     <a
                       href={item.href}
-                      className="text-[0.975rem] font-medium leading-snug hover:text-brand"
+                      className="text-[0.975rem] font-medium hover:text-brand"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -143,7 +143,7 @@ export function TopicFilter({ editions }: TopicFilterProps) {
                   ) : (
                     <Link
                       href={item.href}
-                      className="text-[0.975rem] font-medium leading-snug hover:text-brand"
+                      className="text-[0.975rem] font-medium hover:text-brand"
                     >
                       {item.title}
                     </Link>

@@ -63,7 +63,7 @@ export default async function TopicArchivePage({ params }: PageProps) {
                 {briefing.stories.length === 1 ? "story" : "stories"}
                 {briefing.coverage ? ` · ${briefing.coverage}` : ""}
               </p>
-              <ul className="mt-4 space-y-2">
+              <ul className="story-list mt-4 space-y-2">
                 {briefing.stories.slice(0, 3).map((story) => (
                   <li key={story.title}>
                     <Link

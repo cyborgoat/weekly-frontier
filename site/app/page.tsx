@@ -53,13 +53,12 @@ export default function HomePage() {
           {latest.coverage ? (
             <p className="meta-text mt-3">{latest.coverage}</p>
           ) : null}
-          <ol className="mt-8 space-y-5">
+          <ol className="story-list-numbered mt-8 max-w-3xl space-y-4">
             {latest.highlights.map((highlight, index) => (
-              <li key={`${highlight.url}-${index}`} className="max-w-3xl">
-                <p className="meta-text">Highlight {String(index + 1).padStart(2, "0")}</p>
+              <li key={`${highlight.url}-${index}`}>
                 <a
                   href={highlight.url}
-                  className="mt-1 block text-xl font-semibold tracking-tight hover:text-brand sm:text-2xl"
+                  className="text-xl font-semibold tracking-tight hover:text-brand sm:text-2xl"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

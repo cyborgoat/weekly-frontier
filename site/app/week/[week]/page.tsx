@@ -48,7 +48,7 @@ export default async function WeekPage({ params }: PageProps) {
         {edition.highlights.length > 0 ? (
           <section className="mt-10 border-t border-rule pt-8">
             <h2 className="section-title">Highlights</h2>
-            <ol className="mt-5 space-y-4">
+            <ol className="story-list-numbered mt-5 space-y-3">
               {edition.highlights.map((highlight, index) => (
                 <li key={`${highlight.url}-${index}`}>
                   <a

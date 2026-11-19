@@ -163,6 +163,34 @@
     letter-spacing: -0.045em;
     line-height: 1.12;
   }
+
+  .story-list {
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+
+  .story-list > li {
+    padding-left: 0.35rem;
+  }
+
+  .story-list > li::marker {
+    color: var(--brand);
+  }
+
+  .story-list-numbered {
+    list-style: decimal;
+    padding-left: 1.5rem;
+  }
+
+  .story-list-numbered > li {
+    padding-left: 0.35rem;
+  }
+
+  .story-list-numbered > li::marker {
+    color: var(--muted-foreground);
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 0.875em;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
