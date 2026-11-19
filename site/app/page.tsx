@@ -18,23 +18,7 @@ export default function HomePage() {
     <div className="page-spacing">
       <section className="wide-shell hero-in">
         <div className="hero-panel">
-          <div
-            className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-80"
-            aria-hidden
-            style={{
-              background:
-                "radial-gradient(ellipse at 12% 0%, color-mix(in oklab, var(--brand) 16%, transparent), transparent 52%), linear-gradient(165deg, color-mix(in oklab, var(--secondary) 60%, transparent), transparent 68%)",
-            }}
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-20 rounded-b-[inherit]"
-            aria-hidden
-            style={{
-              background:
-                "linear-gradient(180deg, transparent, color-mix(in oklab, var(--background) 55%, transparent))",
-            }}
-          />
-          <div className="relative max-w-3xl">
+          <div className="max-w-3xl">
             <BrandLogo className="h-auto w-full max-w-[min(100%,36rem)]" priority />
             <p className="mt-5 max-w-xl text-[0.975rem] leading-relaxed text-muted-foreground sm:mt-6 sm:text-lg">
               Concise, source-linked briefings on AI, technology, politics,
