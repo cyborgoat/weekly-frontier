@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { WeekEdition } from "@/lib/content";
 import { TOPIC_LABELS, TOPICS, type TopicSlug } from "@/lib/site";
 
@@ -30,14 +31,6 @@ export function TopicFilter({ editions }: TopicFilterProps) {
       }))
       .filter((edition) => edition.topics.length > 0);
   }, [editions, selected]);
-
-  function toggle(topic: TopicSlug) {
-    setSelected((current) =>
-      current.includes(topic)
-        ? current.filter((item) => item !== topic)
-        : [...current, topic],
-    );
-  }
 
   function previews(edition: WeekEdition): PreviewItem[] {
     if (selected.length === 0) {
@@ -75,31 +68,30 @@ export function TopicFilter({ editions }: TopicFilterProps) {
             </button>
           ) : null}
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Filter the archive by topic, or open any week for the full magazine
           layout.
         </p>
-        <div
-          className="mt-4 flex flex-wrap gap-2"
-          role="group"
+        <ToggleGroup
+          type="multiple"
+          variant="outline"
+          size="sm"
+          spacing={2}
+          value={selected}
+          onValueChange={(value) => setSelected(value as TopicSlug[])}
+          className="mt-5 flex flex-wrap justify-start"
           aria-label="Topic filters"
         >
-          {TOPICS.map((topic) => {
-            const active = selected.includes(topic);
-            return (
-              <Button
-                key={topic}
-                type="button"
-                size="sm"
-                variant={active ? "brand" : "outline"}
-                aria-pressed={active}
-                onClick={() => toggle(topic)}
-              >
-                {TOPIC_LABELS[topic]}
-              </Button>
-            );
-          })}
-        </div>
+          {TOPICS.map((topic) => (
+            <ToggleGroupItem
+              key={topic}
+              value={topic}
+              className="rounded-md border-border/70 text-muted-foreground data-[state=on]:border-brand data-[state=on]:bg-brand data-[state=on]:text-brand-foreground data-[state=on]:hover:bg-brand"
+            >
+              {TOPIC_LABELS[topic]}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
         <p className="meta-text mt-4 flex flex-wrap gap-x-3 gap-y-1">
           <span>Topic archives:</span>
           {TOPICS.map((topic) => (
@@ -110,65 +102,68 @@ export function TopicFilter({ editions }: TopicFilterProps) {
         </p>
       </div>
 
-      <div className="space-y-0">
-        {filtered.map((edition) => (
-          <article
-            key={edition.week}
-            className="border-t border-rule py-6 first:border-t-0"
-          >
-            <p className="meta-text">{edition.period ?? edition.week}</p>
-            <h3 className="mt-1 text-xl font-semibold tracking-tight">
-              <Link href={`/week/${edition.week}/`} className="hover:text-brand">
-                Week of {edition.week.replace("week-of-", "")}
-              </Link>
-            </h3>
-            {edition.coverage ? (
-              <p className="meta-text mt-2">{edition.coverage}</p>
-            ) : null}
-            <ul className="story-list mt-4 space-y-2.5">
-              {previews(edition).map((item) => (
-                <li key={item.key} className="leading-snug">
-                  {item.kicker ? (
-                    <span className="meta-text mr-2">{item.kicker}</span>
-                  ) : null}
-                  {item.external ? (
-                    <a
-                      href={item.href}
-                      className="text-[0.975rem] font-medium hover:text-brand"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {item.title}
-                    </a>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className="text-[0.975rem] font-medium hover:text-brand"
-                    >
-                      {item.title}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
-              <Link href={`/week/${edition.week}/`} className="text-link">
-                Read the edition
-              </Link>
-              {edition.topics.map((topic) => (
+      <hr className="soft-rule" />
+
+      <div>
+        {filtered.map((edition, index) => (
+          <article key={edition.week}>
+            {index > 0 ? <hr className="soft-rule" /> : null}
+            <div className="py-7">
+              <p className="section-kicker">{edition.period ?? edition.week}</p>
+              <h3 className="mt-2 text-xl font-semibold tracking-tight">
                 <Link
-                  key={topic.topic}
-                  href={`/topic/${topic.topic}/${edition.week}/`}
-                  className="text-link"
+                  href={`/week/${edition.week}/`}
+                  className="headline-link"
                 >
-                  {topic.label}
+                  Week of {edition.week.replace("week-of-", "")}
                 </Link>
-              ))}
+              </h3>
+              {edition.coverage ? (
+                <p className="meta-text mt-2">{edition.coverage}</p>
+              ) : null}
+              <ul className="story-list mt-4 space-y-2">
+                {previews(edition).map((item) => (
+                  <li key={item.key} className="leading-snug">
+                    {item.kicker ? (
+                      <span className="meta-text mr-2">{item.kicker}</span>
+                    ) : null}
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        className="headline-link text-sm font-medium sm:text-[0.95rem]"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {item.title}
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className="headline-link text-sm font-medium sm:text-[0.95rem]"
+                      >
+                        {item.title}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/week/${edition.week}/`}>Read the edition</Link>
+                </Button>
+                {edition.topics.map((topic) => (
+                  <Button key={topic.topic} variant="ghost" size="sm" asChild>
+                    <Link href={`/topic/${topic.topic}/${edition.week}/`}>
+                      {topic.label}
+                    </Link>
+                  </Button>
+                ))}
+              </div>
             </div>
           </article>
         ))}
         {filtered.length === 0 ? (
-          <p className="border-t border-rule py-6 text-sm text-muted-foreground">
+          <p className="py-6 text-sm text-muted-foreground">
             No editions match the selected topics yet.
           </p>
         ) : null}

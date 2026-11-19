@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PageBreadcrumbs } from "@/components/PageBreadcrumbs";
 import { StoryBlock } from "@/components/StoryBlock";
 import { SubscribePanel } from "@/components/SubscribePanel";
+import { Button } from "@/components/ui/button";
 import {
   isTopicSlug,
   listTopicWeeks,
@@ -41,33 +43,38 @@ export default async function TopicWeekPage({ params }: PageProps) {
   return (
     <div className="page-spacing">
       <article className="magazine-shell">
-        <p className="meta-text">
-          <Link href="/" className="text-link">
-            Weekly Frontier
-          </Link>
-          {" · "}
-          <Link href={`/topic/${topic}/`} className="text-link">
-            {TOPIC_LABELS[topic]}
-          </Link>
-        </p>
-        <h1 className="page-title mt-3">
-          {TOPIC_LABELS[topic]}
-          <span className="block text-[0.55em] font-medium tracking-normal text-muted-foreground">
+        <PageBreadcrumbs
+          items={[
+            { label: "Weekly Frontier", href: "/" },
+            { label: TOPIC_LABELS[topic], href: `/topic/${topic}/` },
+            { label: briefing.period ?? week },
+          ]}
+        />
+        <p className="section-kicker mt-5">{TOPIC_LABELS[topic]}</p>
+        <h1 className="page-title mt-2">
+          {TOPIC_LABELS[topic]} briefing
+          <span className="mt-2 block text-[0.55em] font-medium tracking-normal text-muted-foreground">
             {briefing.period ?? week}
           </span>
         </h1>
         {briefing.coverage ? (
           <p className="meta-text mt-3">{briefing.coverage}</p>
         ) : null}
-        <p className="mt-4">
-          <Link href={`/week/${week}/`} className="text-link">
-            View the full edition
-          </Link>
-        </p>
+        <div className="mt-5">
+          <Button variant="outline" size="sm" className="border-border/70" asChild>
+            <Link href={`/week/${week}/`}>View the full edition</Link>
+          </Button>
+        </div>
 
-        <div className="mt-10">
-          {briefing.stories.map((story) => (
-            <StoryBlock key={story.title} story={story} />
+        <hr className="soft-rule mt-10" />
+
+        <div>
+          {briefing.stories.map((story, index) => (
+            <StoryBlock
+              key={story.title}
+              story={story}
+              showSeparator={index > 0}
+            />
           ))}
         </div>
 

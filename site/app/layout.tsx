@@ -44,7 +44,7 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
+      <body className="site-atmosphere flex min-h-screen flex-col bg-background font-sans antialiased">
         <ThemeProvider>
           <SiteHeader />
           <main id="main-content" tabIndex={-1} className="flex-1">

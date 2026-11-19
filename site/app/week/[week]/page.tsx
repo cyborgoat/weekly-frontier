@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PageBreadcrumbs } from "@/components/PageBreadcrumbs";
 import { StoryBlock } from "@/components/StoryBlock";
 import { SubscribePanel } from "@/components/SubscribePanel";
-import {
-  listWeekSlugs,
-  loadWeekEdition,
-} from "@/lib/content";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { listWeekSlugs, loadWeekEdition } from "@/lib/content";
 
 type PageProps = {
   params: Promise<{ week: string }>;
@@ -30,30 +30,42 @@ export default async function WeekPage({ params }: PageProps) {
   const edition = loadWeekEdition(week);
   if (!edition) notFound();
 
+  const inProgress = Boolean(
+    edition.coverage?.toLowerCase().includes("in progress"),
+  );
+
   return (
     <div className="page-spacing">
       <article className="magazine-shell">
-        <p className="meta-text">
-          <Link href="/" className="text-link">
-            Weekly Frontier
-          </Link>
-          {" · "}
-          Edition
-        </p>
+        <PageBreadcrumbs
+          items={[
+            { label: "Weekly Frontier", href: "/" },
+            { label: edition.period ?? week },
+          ]}
+        />
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <p className="section-kicker">Edition</p>
+          {inProgress ? <Badge variant="secondary">In progress</Badge> : null}
+        </div>
         <h1 className="page-title mt-3">{edition.period ?? edition.week}</h1>
         {edition.coverage ? (
           <p className="meta-text mt-3">{edition.coverage}</p>
         ) : null}
 
         {edition.highlights.length > 0 ? (
-          <section className="mt-10 border-t border-rule pt-8">
-            <h2 className="section-title">Highlights</h2>
-            <ol className="story-list-numbered mt-5 space-y-3">
+          <section className="mt-12">
+            <hr className="soft-rule" />
+            <p className="section-kicker mt-8">Highlights</p>
+            <h2 className="section-title mt-2">This week&apos;s signals</h2>
+            <ol className="highlight-rail mt-6">
               {edition.highlights.map((highlight, index) => (
                 <li key={`${highlight.url}-${index}`}>
+                  <p className="section-kicker mb-2">
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
                   <a
                     href={highlight.url}
-                    className="text-lg font-semibold tracking-tight hover:text-brand"
+                    className="headline-link text-[1.05rem] font-semibold tracking-tight sm:text-lg"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -65,44 +77,58 @@ export default async function WeekPage({ params }: PageProps) {
           </section>
         ) : null}
 
-        <nav aria-label="Topics in this edition" className="mt-10 border-t border-rule pt-8">
-          <h2 className="section-title">Topics</h2>
-          <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+        <nav aria-label="Topics in this edition" className="mt-12">
+          <hr className="soft-rule" />
+          <p className="section-kicker mt-8">Topics</p>
+          <h2 className="section-title mt-2">Jump to a briefing</h2>
+          <div className="mt-4 flex flex-wrap gap-2">
             {edition.topics.map((topic) => (
-              <li key={topic.topic}>
-                <a href={`#${topic.topic}`} className="text-link">
-                  {topic.label}
-                </a>
-                {" · "}
-                <Link
-                  href={`/topic/${topic.topic}/${edition.week}/`}
-                  className="text-link"
+              <div
+                key={topic.topic}
+                className="flex flex-wrap items-center gap-1"
+              >
+                <Badge
+                  asChild
+                  variant="outline"
+                  className="border-border/70 font-normal"
                 >
-                  Full briefing
-                </Link>
-              </li>
+                  <a href={`#${topic.topic}`}>{topic.label}</a>
+                </Badge>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href={`/topic/${topic.topic}/${edition.week}/`}>
+                    Full briefing
+                  </Link>
+                </Button>
+              </div>
             ))}
-          </ul>
+          </div>
         </nav>
 
         {edition.topics.map((topic) => (
           <section
             key={topic.topic}
             id={topic.topic}
-            className="mt-12 scroll-mt-24 border-t border-rule pt-8"
+            className="mt-14 scroll-mt-24"
           >
-            <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h2 className="section-title">{topic.label}</h2>
-              <Link
-                href={`/topic/${topic.topic}/${edition.week}/`}
-                className="text-link"
-              >
-                Topic page
-              </Link>
+            <hr className="soft-rule" />
+            <div className="mt-8 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="section-kicker">{topic.label}</p>
+                <h2 className="section-title mt-2">{topic.label} briefing</h2>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href={`/topic/${topic.topic}/${edition.week}/`}>
+                  Topic page
+                </Link>
+              </Button>
             </div>
-            <div className="mt-6">
-              {topic.stories.map((story) => (
-                <StoryBlock key={story.title} story={story} />
+            <div className="mt-2">
+              {topic.stories.map((story, index) => (
+                <StoryBlock
+                  key={story.title}
+                  story={story}
+                  showSeparator={index > 0}
+                />
               ))}
             </div>
           </section>

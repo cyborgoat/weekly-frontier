@@ -2,33 +2,46 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SubscribePanel } from "@/components/SubscribePanel";
 import { TopicFilter } from "@/components/TopicFilter";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { listEditions } from "@/lib/content";
 
 export default function HomePage() {
   const editions = listEditions();
   const latest = editions[0] ?? null;
+  const [lead, ...restHighlights] = latest?.highlights ?? [];
+  const inProgress = Boolean(
+    latest?.coverage?.toLowerCase().includes("in progress"),
+  );
 
   return (
     <div className="page-spacing">
       <section className="wide-shell hero-in">
-        <div className="relative overflow-hidden border-b border-rule pb-12">
+        <div className="hero-panel">
           <div
-            className="pointer-events-none absolute inset-0 opacity-70"
+            className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-80"
             aria-hidden
             style={{
               background:
-                "radial-gradient(ellipse at 15% 10%, color-mix(in oklab, var(--brand) 18%, transparent), transparent 55%), linear-gradient(180deg, color-mix(in oklab, var(--secondary) 55%, transparent), transparent 70%)",
+                "radial-gradient(ellipse at 12% 0%, color-mix(in oklab, var(--brand) 16%, transparent), transparent 52%), linear-gradient(165deg, color-mix(in oklab, var(--secondary) 60%, transparent), transparent 68%)",
+            }}
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-20 rounded-b-[inherit]"
+            aria-hidden
+            style={{
+              background:
+                "linear-gradient(180deg, transparent, color-mix(in oklab, var(--background) 55%, transparent))",
             }}
           />
           <div className="relative max-w-3xl">
-            <BrandLogo className="h-auto w-full max-w-xl" priority />
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <BrandLogo className="h-auto w-full max-w-[min(100%,36rem)]" priority />
+            <p className="mt-5 max-w-xl text-[0.975rem] leading-relaxed text-muted-foreground sm:mt-6 sm:text-lg">
               Concise, source-linked briefings on AI, technology, politics,
               finance, science, and business — organized by week, readable like a
               magazine.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="hero-actions mt-7 sm:mt-8">
               <Button variant="brand" asChild>
                 <Link href="/#subscribe">Subscribe via RSS</Link>
               </Button>
@@ -43,47 +56,85 @@ export default function HomePage() {
       </section>
 
       {latest ? (
-        <section className="wide-shell home-reveal mt-12 border-b border-rule pb-12">
-          <p className="meta-text">Latest edition</p>
-          <h2 className="lead-headline mt-2 max-w-4xl">
-            <Link href={`/week/${latest.week}/`} className="hover:text-brand">
+        <section
+          id="latest"
+          className="wide-shell home-reveal section-gap scroll-mt-24"
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="section-kicker">Latest edition</p>
+            {inProgress ? (
+              <Badge variant="secondary">In progress</Badge>
+            ) : null}
+          </div>
+          <h2 className="lead-headline mt-3">
+            <Link
+              href={`/week/${latest.week}/`}
+              className="headline-link"
+            >
               {latest.period ?? latest.week}
             </Link>
           </h2>
           {latest.coverage ? (
             <p className="meta-text mt-3">{latest.coverage}</p>
           ) : null}
-          <ol className="story-list-numbered mt-8 max-w-3xl space-y-4">
-            {latest.highlights.map((highlight, index) => (
-              <li key={`${highlight.url}-${index}`}>
-                <a
-                  href={highlight.url}
-                  className="text-xl font-semibold tracking-tight hover:text-brand sm:text-2xl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {highlight.title}
-                </a>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-8">
-            <Link href={`/week/${latest.week}/`} className="text-link">
-              Open the full edition
-            </Link>
+
+          <hr className="soft-rule my-10" />
+
+          {lead ? (
+            <div className="max-w-3xl">
+              <p className="section-kicker">Lead</p>
+              <a
+                href={lead.url}
+                className="headline-link mt-3 block text-2xl font-semibold tracking-tight sm:text-[1.85rem] sm:leading-snug"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {lead.title}
+              </a>
+            </div>
+          ) : null}
+
+          {restHighlights.length > 0 ? (
+            <ol className="highlight-rail mt-10">
+              {restHighlights.map((highlight, index) => (
+                <li key={`${highlight.url}-${index}`}>
+                  <p className="section-kicker mb-2">
+                    {String(index + 2).padStart(2, "0")}
+                  </p>
+                  <a
+                    href={highlight.url}
+                    className="headline-link text-[1.05rem] font-semibold tracking-tight sm:text-lg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {highlight.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          ) : null}
+
+          <div className="mt-10">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/week/${latest.week}/`}>Open the full edition</Link>
+            </Button>
           </div>
+          <hr className="soft-rule mt-14" />
         </section>
       ) : (
-        <section className="wide-shell mt-12">
+        <section className="wide-shell section-gap">
           <p className="text-muted-foreground">No editions published yet.</p>
         </section>
       )}
 
-      <section className="wide-shell home-reveal mt-12">
+      <section
+        id="browse"
+        className="wide-shell home-reveal section-gap scroll-mt-24"
+      >
         <TopicFilter editions={editions} />
       </section>
 
-      <div className="wide-shell mt-16">
+      <div className="wide-shell section-gap">
         <SubscribePanel />
       </div>
     </div>
