@@ -91,14 +91,13 @@ def monday(value):
 
 def reporting_period(start):
     last = start + dt.timedelta(days=6)
-    zones = list(dict.fromkeys(dt.datetime.combine(start + dt.timedelta(days=i), dt.time(12), tzinfo=TZ).tzname() for i in range(7)))
     if start.year != last.year:
         dates = f'{start:%B} {start.day}, {start.year}–{last:%B} {last.day}, {last.year}'
     elif start.month != last.month:
         dates = f'{start:%B} {start.day}–{last:%B} {last.day}, {last.year}'
     else:
         dates = f'{start:%B} {start.day}–{last.day}, {last.year}'
-    return f'Reporting week: {dates} · Los Angeles time ({"/".join(zones)})'
+    return f'Reporting week: {dates}'
 
 def select_candidates(rows, limit=40):
     # Round-robin newest entries per source so high-volume feeds cannot dominate.
