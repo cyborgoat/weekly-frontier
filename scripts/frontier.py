@@ -128,7 +128,7 @@ def in_reporting_week(value, start, end):
 def refresh_navigation():
     def label(path):
         start = dt.date.fromisoformat(path.stem.removeprefix('week-of-'))
-        return reporting_period(start).removeprefix('Reporting week: ').split(' · ')[0]
+        return reporting_period(start).removeprefix('Reporting week: ')
     def update(page, files, prefix):
         if not page.exists(): return
         lines = []

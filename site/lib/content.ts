@@ -51,7 +51,8 @@ function extractBlock(text: string, name: string) {
 
 function parsePeriod(text: string) {
   const match = text.match(/^Reporting week:\s*(.+)$/m);
-  return match?.[1]?.trim() || null;
+  // Dates are Los Angeles time; older pages may still include an explicit suffix.
+  return match?.[1]?.replace(/\s*·\s*Los Angeles time.*$/, "").trim() || null;
 }
 
 function parseHighlights(text: string): Highlight[] {
