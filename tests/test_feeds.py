@@ -26,6 +26,7 @@ class PublicationFeeds(unittest.TestCase):
                 self.assertIn('<strong>useful</strong>',entry.content[0].value)
                 self.assertNotIn('Collection reports',entry.content[0].value)
                 self.assertIn(feeds.REPO+'/blob/main/topics/ai/2026/',entry.content[0].value)
+                self.assertEqual(entry.link, feeds.BASE + 'week/week-of-2026-11-09/')
                 self.assertEqual(entry.id,rss.entries[0].id)
                 self.assertEqual(entry.published_parsed.tm_mday,14)
                 self.assertEqual(entry.updated_parsed.tm_mday,15)
@@ -34,5 +35,25 @@ class PublicationFeeds(unittest.TestCase):
                 feeds.build(root,output)
                 self.assertEqual(feedparser.parse((output/'feed.xml').read_bytes()).entries[0].id,original)
                 self.assertEqual(len(feedparser.parse((output/'feeds/ai.xml').read_bytes()).entries),1)
+                self.assertEqual(
+                    feedparser.parse((output/'feeds/ai.xml').read_bytes()).entries[0].link,
+                    feeds.BASE + 'topic/ai/week-of-2026-11-09/',
+                )
                 self.assertEqual(len(feedparser.parse((output/'feeds/science.xml').read_bytes()).entries),0)
                 self.assertFalse((output/'data').exists())
+                self.assertTrue((output/'index.html').exists())
+
+    def test_preserves_existing_index(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); week='week-of-2026-11-09.md'
+            weekly=root/'weekly/2026'/week; weekly.parent.mkdir(parents=True)
+            weekly.write_text('# Weekly edition\n')
+            dates=(dt.datetime(2026,11,14,tzinfo=dt.timezone.utc),dt.datetime(2026,11,15,tzinfo=dt.timezone.utc))
+            output=root/'output';output.mkdir()
+            marker='<!doctype html><title>Magazine</title>'
+            (output/'index.html').write_text(marker)
+            with patch.object(feeds,'timestamps',return_value=dates):
+                feeds.build(root,output)
+            self.assertEqual((output/'index.html').read_text(), marker)
+            self.assertTrue((output/'feed.xml').exists())
+            self.assertTrue((output/'.nojekyll').exists())

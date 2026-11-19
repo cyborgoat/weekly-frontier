@@ -7,6 +7,8 @@
 
 A weekly reading companion for people following developments in AI, technology, politics, finance, science, and business. Browse concise briefings, explore a topic, and follow the source links for the original reporting.
 
+**Read online:** [www.cyborgoat.com/weekly-frontier](https://www.cyborgoat.com/weekly-frontier/)
+
 ## Read the latest edition
 
 <!-- navigation:start -->

@@ -54,10 +54,20 @@ Summaries use publisher-supplied feed text, capped at 12,000 characters per item
 
 Feed requests use a 60-second timeout. Model calls use a 10-second connection timeout and configurable `llm_timeout_seconds` read timeout (300 seconds by default). Transient request failures are retried up to three attempts. Collection and topic-generation progress appear in workflow logs. The successful incremental-workflow test collected all 17 sources configured at that time and generated the weekly briefings; subsequent source changes need their own feed checks.
 
-## Publication feeds
+## Magazine site and publication feeds
 
-`python scripts/publish_feeds.py` builds the original 14 Atom/RSS files in `.cache/feed-site/` from committed weekly Markdown. Use `--output` and `--base-url` to override the destination and public URL. Full Git history preserves the first publication timestamp and latest update timestamp. Stable entry IDs survive daily changes and corrections. Reader behavior for existing-entry updates varies by application.
+The public magazine UI is a Next.js static site in `site/`, styled to match [cyborgoat.github.io](https://github.com/cyborgoat/cyborgoat.github.io) (Geist fonts, shared CSS tokens, light/dark theme). It reads committed Markdown under `weekly/` and `topics/` at build time.
 
-Feeds retain the latest 52 editions per stream: `feed.xml`, `feed.rss.xml`, `feeds/<topic>.xml`, and `feeds/<topic>.rss.xml`. Topic briefings are embedded in the main edition feed. Only generated public content is uploaded to Pages; raw archives, credentials, configuration, and logs are excluded. Existing historical pages, subscription URLs, and entry IDs remain unchanged.
+```sh
+cd site
+npm ci
+npm run build
+cd ..
+python scripts/publish_feeds.py --output site/out
+```
 
-Enable Pages with GitHub Actions as the source. The public base URL is `https://www.cyborgoat.com/weekly-frontier/`, inherited from the account's Pages domain. Update subscription links and the builder base URL together if hosting changes.
+`npm run build` writes `site/out`. `publish_feeds.py` merges the original 14 Atom/RSS files into that folder and does not overwrite an existing `index.html` (the Next homepage owns it). Use `--base-url` to override the public URL. Full Git history preserves the first publication timestamp and latest update timestamp. Stable entry IDs survive daily changes and corrections. Entry alternate links point at magazine week/topic URLs under the Pages base.
+
+Feeds retain the latest 52 editions per stream: `feed.xml`, `feed.rss.xml`, `feeds/<topic>.xml`, and `feeds/<topic>.rss.xml`. Topic briefings are embedded in the main edition feed. Only generated public content is uploaded to Pages; raw archives, credentials, configuration, and logs are excluded. Existing historical feed URLs and entry IDs remain unchanged.
+
+Enable Pages with GitHub Actions as the source. The Publish site workflow builds the Next app, merges feeds into `site/out`, and deploys that artifact. The public base URL is `https://www.cyborgoat.com/weekly-frontier/`, inherited from the account's Pages domain. Update subscription links, `site/lib/site.ts`, and the builder base URL together if hosting changes.

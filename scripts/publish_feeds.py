@@ -21,7 +21,7 @@ ET.register_namespace('atom', ATOM)
 
 def timestamps(root, path):
     result = subprocess.run(['git', 'log', '--follow', '--format=%cI', '--', path.relative_to(root).as_posix()], cwd=root, capture_output=True, text=True, check=True)
-    dates = [dt.datetime.fromisoformat(line) for line in result.stdout.splitlines()]
+    dates = [dt.datetime.fromisoformat(line.replace('Z', '+00:00')) for line in result.stdout.splitlines()]
     if not dates:
         raise ValueError(f'Feed entries must be committed: {path.relative_to(root)}')
     return min(dates), max(dates)
@@ -43,7 +43,13 @@ def rendered(root, path):
     return markdown.markdown(text)
 
 
-def entries(root, topic=None):
+def public_url(week_slug, topic=None, base=BASE):
+    if topic:
+        return urljoin(base, f'topic/{topic}/{week_slug}/')
+    return urljoin(base, f'week/{week_slug}/')
+
+
+def entries(root, topic=None, base=BASE):
     directory = root/'topics'/topic if topic else root/'weekly'
     result = []
     for path in sorted(directory.glob('*/week-of-*.md'), reverse=True)[:52]:
@@ -63,7 +69,7 @@ def entries(root, topic=None):
                     updated = max(updated, changed)
         result.append(dict(id='urn:uuid:'+str(uuid.uuid5(uuid.NAMESPACE_URL, REPO+'/'+relative)),
                            title=f'{title} · Week of {week:%B} {week.day}, {week.year}',
-                           url=REPO+'/blob/main/'+relative, content=content,
+                           url=public_url(path.stem, topic, base), content=content,
                            published=published, updated=updated))
     return result
 
@@ -80,10 +86,10 @@ def write_feeds(output, stem, title, items, base):
     for tag, value in [('id',atom_url), ('title',title), ('updated',max((x['updated'] for x in items), default=dt.datetime(2026,1,1,tzinfo=dt.timezone.utc)).isoformat())]:
         element(feed,f'{{{ATOM}}}{tag}',value)
     element(feed,f'{{{ATOM}}}link',href=atom_url,rel='self',type='application/atom+xml')
-    element(feed,f'{{{ATOM}}}link',href=REPO,rel='alternate')
+    element(feed,f'{{{ATOM}}}link',href=base,rel='alternate')
     author=element(feed,f'{{{ATOM}}}author');element(author,f'{{{ATOM}}}name','Weekly Frontier')
     channel=element(ET.Element('rss',version='2.0'),'channel')
-    for tag,value in [('title',title),('link',REPO),('description','Weekly briefings with original source links.'),('language','en')]: element(channel,tag,value)
+    for tag,value in [('title',title),('link',base),('description','Weekly briefings with original source links.'),('language','en')]: element(channel,tag,value)
     element(channel,f'{{{ATOM}}}link',href=urljoin(base,stem+'.rss.xml'),rel='self',type='application/rss+xml')
     for item in items:
         entry=element(feed,f'{{{ATOM}}}entry')
@@ -107,9 +113,12 @@ def build(root=ROOT, output=None, base=BASE):
     for topic in [None,*TOPICS]:
         title='Weekly Frontier' + (f' — {"AI" if topic=="ai" else topic.title()}' if topic else '')
         stem=f'feeds/{topic}' if topic else 'feed'
-        write_feeds(output,stem,title,entries(root,topic),base)
+        write_feeds(output,stem,title,entries(root,topic,base),base)
         links.append(f'<li>{escape(title)}: <a href="{stem}.xml">Atom</a> · <a href="{stem}.rss.xml">RSS</a></li>')
-    (output/'index.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Subscribe to Weekly Frontier</title><h1>Subscribe to Weekly Frontier</h1><p>Copy a feed link into your feed reader. New editions appear after publication.</p><ul>'+''.join(links)+f'</ul><p><a href="{REPO}">Read the archive</a></p></html>')
+    index = output/'index.html'
+    # Next.js owns the magazine homepage; only write the subscribe stub when absent.
+    if not index.exists():
+        index.write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Subscribe to Weekly Frontier</title><h1>Subscribe to Weekly Frontier</h1><p>Copy a feed link into your feed reader. New editions appear after publication.</p><ul>'+''.join(links)+f'</ul><p><a href="{base}">Read the archive</a></p></html>')
     (output/'.nojekyll').touch()
     print(f'Built 14 feeds in {output}')
 

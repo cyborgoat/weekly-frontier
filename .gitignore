@@ -2,3 +2,7 @@
 __pycache__/
 .venv/
 .cache/
+site/node_modules/
+site/.next/
+site/out/
+site/*.tsbuildinfo

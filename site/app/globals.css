@@ -1,0 +1,202 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-rule: var(--border);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  color-scheme: light;
+  --radius: 0.3rem;
+  --background: #f8f2e8;
+  --foreground: #2b1c15;
+  --card: #fffaf2;
+  --card-foreground: #2b1c15;
+  --primary: #3a271d;
+  --primary-foreground: #f8f2e8;
+  --secondary: #ede0cf;
+  --muted: #f0e6d8;
+  --muted-foreground: #685245;
+  --accent: #ede0cf;
+  --accent-foreground: #3a271d;
+  --brand: #854925;
+  --brand-foreground: #f8f2e8;
+  --border: #ddcebb;
+  --input: #a58b76;
+  --ring: #94613e;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #11131a;
+  --foreground: #e8ecf4;
+  --card: #181b25;
+  --card-foreground: #e8ecf4;
+  --primary: #e8ecf4;
+  --primary-foreground: #11131a;
+  --secondary: #242837;
+  --muted: #1d202c;
+  --muted-foreground: #a9b0c2;
+  --accent: #242837;
+  --accent-foreground: #e8ecf4;
+  --brand: #a9b5ff;
+  --brand-foreground: #11131a;
+  --border: #2c3141;
+  --input: #2c3141;
+  --ring: #a9b5ff;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 4px;
+  }
+
+  html {
+    scroll-behavior: auto;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .site-shell,
+  .wide-shell,
+  .magazine-shell {
+    width: min(100% - 2rem, 52rem);
+    margin-inline: auto;
+  }
+
+  .wide-shell {
+    width: min(100% - clamp(2rem, 6vw, 6rem), 80rem);
+  }
+
+  .magazine-shell {
+    width: min(100% - 2rem, 66rem);
+  }
+
+  .page-spacing {
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .page-title {
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1.15;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  .meta-text {
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 0.8125rem;
+    color: var(--muted-foreground);
+  }
+
+  .text-link {
+    width: fit-content;
+    color: var(--brand);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.25em;
+  }
+
+  .text-link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .story-headline {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+  }
+
+  .lead-headline {
+    font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1.12;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .home-reveal {
+      animation: section-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+  }
+
+  .hero-in {
+    animation: hero-in 480ms ease-out both;
+  }
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0.55;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes section-in {
+  from {
+    opacity: 0.65;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
