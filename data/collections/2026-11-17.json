@@ -1,0 +1,87 @@
+{
+  "bbc-tech": {
+    "ok": true,
+    "entries": 21,
+    "undated": 0
+  },
+  "techcrunch": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "ars": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "bbc-world": {
+    "ok": true,
+    "entries": 28,
+    "undated": 0
+  },
+  "bbc-politics": {
+    "ok": true,
+    "entries": 69,
+    "undated": 0
+  },
+  "fed": {
+    "ok": true,
+    "entries": 15,
+    "undated": 0
+  },
+  "bbc-business": {
+    "ok": true,
+    "entries": 55,
+    "undated": 0
+  },
+  "nature": {
+    "ok": true,
+    "entries": 75,
+    "undated": 0
+  },
+  "nasa": {
+    "ok": true,
+    "entries": 10,
+    "undated": 0
+  },
+  "arxiv-ai": {
+    "ok": true,
+    "entries": 1769,
+    "undated": 0
+  },
+  "huggingface": {
+    "ok": true,
+    "entries": 908,
+    "undated": 0
+  },
+  "deepmind": {
+    "ok": true,
+    "entries": 100,
+    "undated": 0
+  },
+  "openai": {
+    "ok": true,
+    "entries": 1406,
+    "undated": 0
+  },
+  "google-research": {
+    "ok": true,
+    "entries": 100,
+    "undated": 0
+  },
+  "bair": {
+    "ok": true,
+    "entries": 10,
+    "undated": 0
+  },
+  "interconnects": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "lilian-weng": {
+    "ok": true,
+    "entries": 53,
+    "undated": 0
+  }
+}

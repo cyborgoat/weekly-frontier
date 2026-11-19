@@ -5,11 +5,12 @@ Follow international developments, public policy, and political reporting.
 ## Briefings
 
 <!-- navigation:start -->
-Latest available: [November 9–15, 2026](2026/week-of-2026-11-09.md)
+Latest available: [November 16–22, 2026](2026/week-of-2026-11-16.md)
 Current reporting week — coverage is incomplete.
 
 ### 2026
 
+- [November 16–22, 2026](2026/week-of-2026-11-16.md)
 - [November 9–15, 2026](2026/week-of-2026-11-09.md)
 <!-- navigation:end -->
 
