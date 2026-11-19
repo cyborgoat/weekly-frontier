@@ -40,11 +40,11 @@ The previous week's briefing is finalized from **Monday at 11:30 Los Angeles tim
 
 ## Sources and reading notes
 
-The collection draws on publisher feeds, research labs, and paper announcements. Summaries are generated from feed excerpts rather than full articles; follow the source links for context and detail.
+The collection draws on publisher feeds, research labs, and paper announcements. Summaries are generated from text supplied in the feeds; follow the source links for context and detail.
 
 Selection is limited and coverage may be incomplete, especially when collection begins partway through a week. Briefings are not exhaustive surveys or independently fact-checked reporting. “Why it matters” adds interpretation to the reported information.
 
-AI coverage includes unreviewed preprints, lab claims, and technical commentary. Political coverage currently has limited publisher and geographic diversity. Read across sources when assessing a claim.
+AI coverage includes unreviewed preprints, lab claims, and technical commentary. World-affairs coverage draws on BBC World, Deutsche Welle, Al Jazeera, Bloomberg, and the Wall Street Journal; publisher and geographic coverage remains selective. Read across sources when assessing a claim. See the [source curation notes](docs/sources.md) for how feeds are selected.
 
 ## Behind the collection
 

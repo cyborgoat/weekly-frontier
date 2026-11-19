@@ -12,7 +12,36 @@ from unittest.mock import patch, Mock
 import tempfile
 from pathlib import Path
 from scripts import frontier
+class FeedText(unittest.TestCase):
+    def test_prefers_usable_summary_over_embedded_body(self):
+        summary = 'A concise research excerpt. ' * 5
+        self.assertEqual(frontier.feed_text({'summary': '<p>'+summary+'</p>', 'content': [{'value': 'Full body. '*100}]}), summary.strip())
+
+    def test_short_summary_falls_back_to_feed_content_and_keeps_cap(self):
+        text = frontier.feed_text({'summary': 'Brief subtitle', 'content': [{'value': '<p>'+'Research details. '*1000+'</p>'}]})
+        self.assertEqual(len(text), 12000)
+        self.assertTrue(text.startswith('Research details.'))
+        self.assertNotIn('<p>', text)
+
+    def test_title_only_entries_do_not_invent_summary(self):
+        self.assertEqual(frontier.feed_text({'title': 'Model launch'}), '')
+
 class Collection(unittest.TestCase):
+    def test_content_only_rss_is_archived_without_fetching_article(self):
+        excerpt = 'Research details supplied inside the RSS feed. ' * 4
+        xml = ('<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">'
+               '<channel><title>Test</title><item><title>Story</title><link>https://example.org/a</link>'
+               '<pubDate>Mon, 09 Nov 2026 12:00:00 GMT</pubDate>'
+               '<description>Short subtitle</description><content:encoded><![CDATA[<p>'+excerpt+
+               '</p>]]></content:encoded></item></channel></rss>').encode()
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(frontier, 'ROOT', Path(directory)), \
+                 patch.object(frontier, 'SOURCES', [{'id': 'test', 'topic': 'ai', 'url': 'https://example.org/rss'}]), \
+                 patch.object(frontier, 'request', return_value=Mock(content=xml)) as request:
+                frontier.collect()
+                self.assertEqual(frontier.records()[0]['text'], excerpt.strip())
+                request.assert_called_once_with('GET', 'https://example.org/rss')
+
     def test_feed_archive_and_dedup(self):
         xml=b'<rss version="2.0"><channel><title>Test</title><item><title>Story</title><link>https://example.org/a</link><pubDate>Mon, 09 Nov 2026 12:00:00 GMT</pubDate><description>News excerpt</description></item></channel></rss>'
         with tempfile.TemporaryDirectory() as directory:

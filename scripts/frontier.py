@@ -41,6 +41,15 @@ def completion_text(response):
 def records():
     return [json.loads(line) for p in (ROOT/'data/articles').glob('*.jsonl') for line in p.read_text().splitlines() if line]
 
+def feed_text(entry):
+    """Prefer a usable excerpt; otherwise read text already embedded in the feed."""
+    def clean(value):
+        return re.sub('<[^>]+>', ' ', value).strip() if isinstance(value, str) else ''
+    summary = clean(entry.get('summary', ''))
+    if len(summary) > 80: return summary[:12000]
+    contents = [clean(part.get('value', '')) for part in entry.get('content', []) if isinstance(part, dict)]
+    return max([summary, *contents], key=len)[:12000]
+
 def collect(dry=False, date=None, known_urls=()):
     now = dt.datetime.now(TZ); rows=[]; outcomes={}
     date = date or now.date()
@@ -57,7 +66,7 @@ def collect(dry=False, date=None, known_urls=()):
                 url=e.get('link','').split('#')[0]
                 if not url.startswith(('https://','http://')) or url in known: continue
                 known.add(url)
-                rows.append(dict(source=s['id'],topic=s['topic'],url=url,title=e.get('title',''),text=re.sub('<[^>]+>',' ',e.get('summary',''))[:12000],published=dt.datetime(*published[:6],tzinfo=dt.timezone.utc).isoformat(),collected=now.isoformat()))
+                rows.append(dict(source=s['id'],topic=s['topic'],url=url,title=e.get('title',''),text=feed_text(e),published=dt.datetime(*published[:6],tzinfo=dt.timezone.utc).isoformat(),collected=now.isoformat()))
         except Exception as exc: outcomes[s['id']]={'ok':False,'error':str(exc)}
     print(json.dumps(outcomes,indent=2), flush=True)
     if not dry:
