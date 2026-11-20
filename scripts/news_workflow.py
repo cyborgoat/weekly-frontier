@@ -20,9 +20,23 @@ def run(*args):
         raise
 
 
-def scheduled_command(now, event='schedule', command='daily'):
+def scheduled_command(now, event='schedule', command='daily', schedule=''):
     if event == 'workflow_dispatch': return command
-    return {10: 'daily', 11: 'generate'}.get(now.astimezone(frontier.TZ).hour, '')
+    # Target 10:30 daily and 11:30 previous-week finalization in Los Angeles time.
+    # Prefer the triggering cron identity so multi-hour GitHub delays still run the
+    # intended job instead of becoming successful no-ops.
+    local = now.astimezone(frontier.TZ)
+    hour = local.hour
+    if not (9 <= hour <= 18):
+        return ''
+    pdt = local.dst() != dt.timedelta(0)
+    if schedule == '30 17 * * *':
+        return 'daily' if pdt else ''
+    if schedule == '30 19 * * *':
+        return 'generate' if not pdt else ''
+    if schedule == '30 18 * * *':
+        return 'generate' if pdt else 'daily'
+    return {10: 'daily', 11: 'generate'}.get(hour, '')
 
 
 def review_week(pr):
@@ -123,7 +137,9 @@ def main():
     parser.add_argument('--date', type=dt.date.fromisoformat); parser.add_argument('--week-of')
     args = parser.parse_args(); now = dt.datetime.now(frontier.TZ)
     if args.command == 'mode':
-        command = scheduled_command(now, os.environ.get('EVENT', 'schedule'), os.environ.get('COMMAND') or 'daily')
+        command = scheduled_command(
+            now, os.environ.get('EVENT', 'schedule'), os.environ.get('COMMAND') or 'daily',
+            os.environ.get('SCHEDULE', ''))
         if command == 'collect': command = 'daily'
         with open(os.environ['GITHUB_OUTPUT'], 'a') as output: output.write(f'command={command}\n')
         return

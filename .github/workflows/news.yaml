@@ -1,8 +1,11 @@
 name: News archive
 on:
   schedule:
-    # 10:30 current-week updates and 11:30 previous-week finalization in LA.
-    - cron: '30 17,18,19 * * *'
+    # Split crons so delayed GitHub starts still know which job was intended.
+    # Local-hour gate remains delay-tolerant (see news_workflow.scheduled_command).
+    - cron: '30 17 * * *' # daily candidate (10:30 PDT)
+    - cron: '30 18 * * *' # daily candidate (10:30 PST) / generate candidate (11:30 PDT)
+    - cron: '30 19 * * *' # generate candidate (11:30 PST)
   workflow_dispatch:
     inputs:
       command:
@@ -35,6 +38,7 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           COMMAND: ${{ inputs.command }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: python scripts/news_workflow.py mode
       - if: steps.mode.outputs.command != ''
         env:

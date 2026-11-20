@@ -28,7 +28,7 @@ Generation validates every topic before writing reader-facing pages and checkpoi
 
 ## Schedule and review lifecycle
 
-The News archive workflow runs at **10:30 America/Los_Angeles daily** to collect feeds and update the current Monday–Sunday briefing. Paired UTC schedules and a local-hour gate cover PST and PDT. GitHub can delay scheduled execution; these are target times, not real-time guarantees.
+The News archive workflow runs at **10:30 America/Los_Angeles daily** to collect feeds and update the current Monday–Sunday briefing. Split UTC cron entries plus a delay-tolerant local gate cover PST/PDT and late GitHub starts (through 18:00 Los Angeles time) without turning into successful no-ops. These are target times, not real-time guarantees.
 
 There is one open review PR per reporting week. Its branch begins `news/week-of-YYYY-MM-DD-update-<first-update-date>`. Daily runs resume that PR from its latest head, merge the selected base branch, and append new content. Reviewer commits are preserved, and the workflow never force-pushes. A merge conflict or concurrent reviewer push fails safely; resolve conflicts on the review branch and rerun.
 
