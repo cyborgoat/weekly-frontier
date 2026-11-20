@@ -1,4 +1,4 @@
 timezone: America/Los_Angeles
 stories_per_topic: 8
-max_tokens: 16000
+max_tokens: 32000
 llm_timeout_seconds: 300
