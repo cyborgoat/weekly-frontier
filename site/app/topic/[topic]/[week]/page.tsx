@@ -1,7 +1,7 @@
 import { WeekPicker } from "@/components/WeekPicker";
 import { notFound } from "next/navigation";
 import { PageBreadcrumbs } from "@/components/PageBreadcrumbs";
-import { StoryBlock } from "@/components/StoryBlock";
+import { BriefingStories } from "@/components/BriefingStories";
 import {
   isTopicSlug,
   listTopicWeeks,
@@ -51,28 +51,22 @@ export default async function TopicWeekPage({ params }: PageProps) {
         <p className="section-kicker mt-5">{TOPIC_LABELS[topic]}</p>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h1 className="page-title mt-2">
-          {TOPIC_LABELS[topic]} briefing
-          <span className="mt-2 block text-[0.55em] font-medium tracking-normal text-muted-foreground">
-            {briefing.period ?? week}
-          </span>
-        </h1>
-          <WeekPicker current={week} weeks={listTopicWeeks(topic).map(briefing => briefing.week)} root={`/topic/${topic}`} />
+            {TOPIC_LABELS[topic]} briefing
+            <span className="mt-2 block text-[0.55em] font-medium tracking-normal text-muted-foreground">
+              {briefing.period ?? week}
+            </span>
+          </h1>
+          <WeekPicker
+            current={week}
+            weeks={listTopicWeeks(topic).map(({ week, period }) => ({ week, period }))}
+            topic={topic}
+          />
         </div>
         {briefing.coverage ? (
           <p className="meta-text mt-3">{briefing.coverage}</p>
         ) : null}
 
-        <hr className="soft-rule mt-10" />
-
-        <div>
-          {briefing.stories.map((story, index) => (
-            <StoryBlock
-              key={story.title}
-              story={story}
-              showSeparator={index > 0}
-            />
-          ))}
-        </div>
+        <BriefingStories stories={briefing.stories} />
       </article>
     </div>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { WeekPicker } from "@/components/WeekPicker";
 import { PageBreadcrumbs } from "@/components/PageBreadcrumbs";
 import { Fragment } from "react";
 import { isTopicSlug, listTopicWeeks } from "@/lib/content";
@@ -26,7 +27,8 @@ export default async function TopicArchivePage({ params }: PageProps) {
   const { topic } = await params;
   if (!isTopicSlug(topic)) notFound();
 
-  const [latest, ...earlier] = listTopicWeeks(topic);
+  const briefings = listTopicWeeks(topic);
+  const [latest, ...earlier] = briefings;
 
   return (
     <div className="page-spacing">
@@ -38,7 +40,10 @@ export default async function TopicArchivePage({ params }: PageProps) {
           ]}
         />
         <p className="section-kicker mt-5">Topic</p>
-        <h1 className="page-title mt-2">{TOPIC_LABELS[topic]}</h1>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h1 className="page-title mt-2">{TOPIC_LABELS[topic]}</h1>
+          <WeekPicker weeks={briefings.map(({ week, period }) => ({ week, period }))} topic={topic} />
+        </div>
         <p className="mt-4 max-w-2xl text-muted-foreground">
           {TOPIC_BLURBS[topic]}
         </p>
