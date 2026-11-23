@@ -89,16 +89,18 @@ class CandidateSelection(unittest.TestCase):
                      text='Excerpt') for i in range(81)]
         batches = []
 
-        def rank(_, batch):
+        def rank(instructions, batch):
+            for lab in ['OpenAI', 'Anthropic', 'Qwen', 'DeepSeek', 'Google', 'Microsoft']:
+                self.assertIn(lab, instructions)
             batches.append(batch)
             indices = sorted(range(len(batch)), key=lambda i: int(batch[i]['title']), reverse=True)
-            return {'indices': indices[:20]}
+            return {'indices': indices[:30]}
 
         with patch.object(frontier, 'model_json', side_effect=rank):
-            selected = frontier.ranked_candidates('science', rows, 20)
+            selected = frontier.ranked_candidates('ai', rows, 30)
         self.assertEqual({row['title'] for batch in batches for row in batch}, {row['title'] for row in rows})
         self.assertTrue(all(len(batch) <= 40 for batch in batches))
-        self.assertEqual([row['title'] for row in selected], [str(i) for i in range(80, 60, -1)])
+        self.assertEqual([row['title'] for row in selected], [str(i) for i in range(80, 50, -1)])
 
     def test_duplicate_urls_are_merged(self):
         row = dict(source='lab', url='https://example.org/a')

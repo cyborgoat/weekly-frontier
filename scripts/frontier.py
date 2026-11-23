@@ -109,17 +109,28 @@ def unique_candidates(rows):
 def ranked_candidates(topic, candidates, limit):
     """Review every candidate in bounded batches, then rank the combined shortlist."""
     batch_size = 40
+    ai_priority = (
+        'For AI, give higher priority to substantive model releases, technical reports, '
+        'evaluation and safety findings, datasets, and developer tooling from major AI labs, '
+        'including OpenAI, Anthropic, Alibaba Qwen, DeepSeek, Google and Google DeepMind, '
+        'Microsoft, Meta, and other leading teams. Give substantial first-party research '
+        'and evaluation essays priority too. A passing mention or promotional update earns '
+        'no priority. Keep consequential independent research and reporting in the mix. '
+        if topic == 'ai' else ''
+    )
 
     def rank(batch):
         payload = [
-            dict(title=row['title'], source=publisher_name(row['source']), excerpt=row['text'][:1200])
+            dict(title=row['title'], source=publisher_name(row['source']),
+                 url=row['url'], excerpt=row['text'][:1200])
             for row in batch
         ]
         result = model_json(
             f'Choose up to {limit} distinct, consequential {topic} stories for a reader catching up '
             'on the week. Rank by impact, relevance to the topic and strength of evidence. '
-            'Prefer original reporting and primary sources. For AI prioritize research methods, '
-            'evaluations, datasets, open models and tooling. Choose one source per event. '
+            'Prefer original reporting and primary sources. '
+            f'{ai_priority}'
+            'Choose one source per event. '
             'Skip low-value or out-of-topic stories. Return {"indices":[0, ...]} in descending '
             'importance, using zero-based indices into the supplied candidates.',
             payload)
@@ -295,8 +306,8 @@ def generate(start, dry=False, regenerate=False, through=None, extra_rows=()):
     state_path = ROOT/f'data/editions/{key}.json'
     state = json.loads(state_path.read_text()) if state_path.exists() else {}
     limit = SETTINGS['weekly_story_limit']
-    if type(limit) != int or not 1 <= limit <= 20:
-        raise ValueError('weekly_story_limit must be between 1 and 20')
+    if type(limit) != int or not 1 <= limit <= 30:
+        raise ValueError('weekly_story_limit must be between 1 and 30')
     ranked_urls = state.get('ranked_urls', {}) if state.get('weekly_story_limit') == limit else {}
     topics = list(dict.fromkeys(s['topic'] for s in SOURCES))
     paths = {topic: ROOT/f'topics/{topic}/{start.year}/{key}.md' for topic in topics}

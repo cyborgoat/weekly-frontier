@@ -98,15 +98,15 @@ class WeeklyBriefings(unittest.TestCase):
         model = self.update([sunday]); model.assert_not_called()
         self.assertIn('No eligible stories collected.', self.page.read_text())
 
-    def test_week_stays_capped_at_twenty_and_late_story_can_replace_earlier_pick(self):
-        rows = [dict(ROW, url=f'https://example.org/{i}', title=f'Discovery {i}') for i in range(20)]
+    def test_week_stays_capped_at_thirty_and_late_story_can_replace_earlier_pick(self):
+        rows = [dict(ROW, url=f'https://example.org/{i}', title=f'Discovery {i}') for i in range(30)]
         self.update(rows)
         late = dict(ROW, url='https://example.org/late', title='Late discovery')
-        self.update([*rows, late], dt.date(2026, 11, 11), indices=[20, *range(19)])
+        self.update([*rows, late], dt.date(2026, 11, 11), indices=[30, *range(29)])
         body = self.page.read_text()
-        self.assertEqual(body.count('\n## '), 20)
+        self.assertEqual(body.count('\n## '), 30)
         self.assertIn('## Late discovery', body)
-        self.assertNotIn('## Discovery 19', body)
+        self.assertNotIn('## Discovery 29', body)
 
     def test_invalid_response_does_not_overwrite_existing_pages(self):
         self.update([ROW]); before = self.page.read_text()
@@ -119,7 +119,7 @@ class WeeklyBriefings(unittest.TestCase):
     def test_all_source_failure_and_story_limit(self):
         with patch.object(frontier, 'collect', return_value=([], {'test': {'ok': False}})):
             with self.assertRaisesRegex(ValueError, 'No successful collection'): frontier.daily(dt.date(2026, 11, 10))
-        with self.assertRaisesRegex(ValueError, 'story count'): self.update([ROW], indices=[0]*21)
+        with self.assertRaisesRegex(ValueError, 'story count'): self.update([ROW], indices=[0]*31)
 
     def test_dry_run_does_not_write_files(self):
         with patch.object(frontier, 'collect', return_value=([ROW], {'test': {'ok': True}})), \
