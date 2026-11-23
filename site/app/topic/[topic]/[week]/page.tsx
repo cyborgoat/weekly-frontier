@@ -1,9 +1,7 @@
-import Link from "next/link";
+import { WeekPicker } from "@/components/WeekPicker";
 import { notFound } from "next/navigation";
 import { PageBreadcrumbs } from "@/components/PageBreadcrumbs";
 import { StoryBlock } from "@/components/StoryBlock";
-import { SubscribePanel } from "@/components/SubscribePanel";
-import { Button } from "@/components/ui/button";
 import {
   isTopicSlug,
   listTopicWeeks,
@@ -51,20 +49,18 @@ export default async function TopicWeekPage({ params }: PageProps) {
           ]}
         />
         <p className="section-kicker mt-5">{TOPIC_LABELS[topic]}</p>
-        <h1 className="page-title mt-2">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h1 className="page-title mt-2">
           {TOPIC_LABELS[topic]} briefing
           <span className="mt-2 block text-[0.55em] font-medium tracking-normal text-muted-foreground">
             {briefing.period ?? week}
           </span>
         </h1>
+          <WeekPicker current={week} weeks={listTopicWeeks(topic).map(briefing => briefing.week)} root={`/topic/${topic}`} />
+        </div>
         {briefing.coverage ? (
           <p className="meta-text mt-3">{briefing.coverage}</p>
         ) : null}
-        <div className="mt-5">
-          <Button variant="outline" size="sm" className="border-border/70" asChild>
-            <Link href={`/week/${week}/`}>View the full edition</Link>
-          </Button>
-        </div>
 
         <hr className="soft-rule mt-10" />
 
@@ -76,10 +72,6 @@ export default async function TopicWeekPage({ params }: PageProps) {
               showSeparator={index > 0}
             />
           ))}
-        </div>
-
-        <div className="mt-16">
-          <SubscribePanel />
         </div>
       </article>
     </div>

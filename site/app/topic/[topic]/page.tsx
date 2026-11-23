@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageBreadcrumbs } from "@/components/PageBreadcrumbs";
-import { SubscribePanel } from "@/components/SubscribePanel";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Fragment } from "react";
 import { isTopicSlug, listTopicWeeks } from "@/lib/content";
 import { TOPIC_BLURBS, TOPIC_LABELS, TOPICS } from "@/lib/site";
 
@@ -28,7 +26,7 @@ export default async function TopicArchivePage({ params }: PageProps) {
   const { topic } = await params;
   if (!isTopicSlug(topic)) notFound();
 
-  const briefings = listTopicWeeks(topic);
+  const [latest, ...earlier] = listTopicWeeks(topic);
 
   return (
     <div className="page-spacing">
@@ -45,67 +43,30 @@ export default async function TopicArchivePage({ params }: PageProps) {
           {TOPIC_BLURBS[topic]}
         </p>
 
-        <hr className="soft-rule mt-10" />
+        {latest ? (
+          <section className="mt-8 border-t-2 border-foreground py-6">
+            <p className="section-kicker text-brand">Latest briefing</p>
+            <p className="meta-text mt-3">{latest.period ?? latest.week} · {latest.stories.length} {latest.stories.length === 1 ? "story" : "stories"}</p>
+            <h2 className="mt-3 max-w-3xl text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
+              <Link className="headline-link" href={`/topic/${topic}/${latest.week}/`}>
+                {latest.stories[0]?.title ?? "Read the weekly briefing"}
+              </Link>
+            </h2>
+          </section>
+        ) : <p className="mt-6">No briefings for this topic yet.</p>}
 
-        <div>
-          {briefings.map((briefing, index) => (
-            <article key={briefing.week}>
-              {index > 0 ? <hr className="soft-rule" /> : null}
-              <div className="py-7">
-                <p className="section-kicker">
-                  {briefing.period ?? briefing.week}
-                </p>
-                <h2 className="mt-2 text-xl font-semibold tracking-tight">
-                  <Link
-                    href={`/topic/${topic}/${briefing.week}/`}
-                    className="headline-link"
-                  >
-                    {briefing.stories[0]?.title ??
-                      `Week of ${briefing.week.replace("week-of-", "")}`}
-                  </Link>
-                </h2>
-                <div className="meta-text mt-2 flex flex-wrap items-center gap-2">
-                  <Badge
-                    variant="secondary"
-                    className="font-normal"
-                  >
-                    {briefing.stories.length}{" "}
-                    {briefing.stories.length === 1 ? "story" : "stories"}
-                  </Badge>
-                  {briefing.coverage ? <span>{briefing.coverage}</span> : null}
-                </div>
-                <ul className="story-list mt-4 space-y-2">
-                  {briefing.stories.slice(0, 3).map((story) => (
-                    <li key={story.title}>
-                      <Link
-                        href={`/topic/${topic}/${briefing.week}/`}
-                        className="headline-link text-sm font-medium sm:text-[0.95rem]"
-                      >
-                        {story.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-5">
-                  <Button variant="outline" size="sm" className="border-border/70" asChild>
-                    <Link href={`/topic/${topic}/${briefing.week}/`}>
-                      Open briefing
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </article>
+        {earlier.length > 0 && <section className="mt-8">
+          <h2 className="section-title">Earlier weeks</h2>
+          {earlier.map((briefing, index) => (
+            <Fragment key={briefing.week}>
+              {briefing.year !== earlier[index - 1]?.year && <h3 className="archive-year">{briefing.year}</h3>}
+              <Link className="archive-row group" href={`/topic/${topic}/${briefing.week}/`}>
+                <span className="font-semibold text-brand group-hover:underline">{briefing.period ?? briefing.week}</span>
+                <span>{briefing.stories[0]?.title}</span>
+              </Link>
+            </Fragment>
           ))}
-          {briefings.length === 0 ? (
-            <p className="py-6 text-sm text-muted-foreground">
-              No briefings for this topic yet.
-            </p>
-          ) : null}
-        </div>
-
-        <div className="mt-16">
-          <SubscribePanel />
-        </div>
+        </section>}
       </div>
     </div>
   );

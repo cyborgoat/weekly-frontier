@@ -202,12 +202,6 @@ export function listWeekSlugs(): string[] {
   return listWeekFiles(path.join(REPO_ROOT, "weekly")).map(weekFromPath);
 }
 
-export function listEditions(): WeekEdition[] {
-  return listWeekSlugs()
-    .map((week) => loadWeekEdition(week))
-    .filter((edition): edition is WeekEdition => edition !== null);
-}
-
 export function listTopicWeeks(topic: TopicSlug): TopicBriefing[] {
   return listWeekFiles(path.join(REPO_ROOT, "topics", topic))
     .map((filePath) => loadTopicBriefing(topic, weekFromPath(filePath)))

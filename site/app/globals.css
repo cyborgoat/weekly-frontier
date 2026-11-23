@@ -413,3 +413,12 @@
     translate: 0 0;
   }
 }
+
+@layer components {
+  .archive-year {
+    @apply mt-8 border-b-2 border-foreground pb-2 font-mono text-sm font-semibold;
+  }
+  .archive-row {
+    @apply grid items-baseline gap-2 border-b py-5 sm:grid-cols-[15rem_1fr] sm:gap-6;
+  }
+}

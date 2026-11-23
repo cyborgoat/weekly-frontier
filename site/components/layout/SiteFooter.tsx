@@ -1,34 +1,27 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { githubUrl, portfolioUrl, siteUrl } from "@/lib/site";
+import { ArrowUpRight } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
+import { SubscribeMenu } from "@/components/SubscribeMenu";
+import { githubUrl, portfolioUrl } from "@/lib/site";
 
 export function SiteFooter() {
   return (
-    <footer>
-      <hr className="soft-rule" />
-      <div className="wide-shell flex flex-col gap-4 py-8 sm:flex-row sm:items-center sm:justify-between">
-        <p className="meta-text">
-          Weekly Frontier · a project by{" "}
-          <a href={portfolioUrl} className="text-link">
-            cyborgoat
+    <footer id="subscribe" className="border-t bg-card">
+      <div className="wide-shell flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-5">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <Link href="/">
+            <BrandLogo className="h-10 w-auto" />
+          </Link>
+          <p className="text-sm text-muted-foreground">
+            A project by <a href={portfolioUrl} className="text-link">cyborgoat</a>
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <a href={githubUrl} className="text-link inline-flex items-center gap-1">
+            GitHub <ArrowUpRight aria-hidden="true" className="size-3.5" />
           </a>
-        </p>
-        <nav aria-label="Footer" className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" className="border-border/70" asChild>
-            <a href={`${siteUrl}/feed.xml`}>Atom</a>
-          </Button>
-          <Button variant="outline" size="sm" className="border-border/70" asChild>
-            <a href={`${siteUrl}/feed.rss.xml`}>RSS</a>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/#subscribe">Subscribe</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <a href={githubUrl} target="_blank" rel="noopener noreferrer">
-              GitHub
-            </a>
-          </Button>
-        </nav>
+          <SubscribeMenu />
+        </div>
       </div>
     </footer>
   );

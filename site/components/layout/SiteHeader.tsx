@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
+import { NavigationMenu } from "radix-ui";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ThemeToggleButton } from "@/components/theme-toggle-button";
 import { Button } from "@/components/ui/button";
@@ -13,93 +15,96 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { portfolioUrl } from "@/lib/site";
+import { TOPICS, TOPIC_LABELS } from "@/lib/site";
 
-const navLinks = [
-  { href: "/#latest", label: "Latest" },
-  { href: "/#browse", label: "Topics" },
-  { href: "/#subscribe", label: "Subscribe" },
-];
+const topics = TOPICS.map((topic) => ({
+  label: TOPIC_LABELS[topic],
+  href: `/topic/${topic}/`,
+}));
+
+const home = { label: "Home", href: "/" };
 
 export function SiteHeader() {
+  const pathname = usePathname();
+
+  function currentSection(href: string) {
+    if (pathname === href || `${pathname}/` === href) return "page";
+    if (href !== home.href && pathname.startsWith(href)) {
+      return "location";
+    }
+    return undefined;
+  }
+
   return (
-    <header className="sticky top-0 z-50 border-b border-rule/60 bg-background/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b bg-background">
       <a
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-10 focus:bg-background focus:p-3"
         href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-10 focus:bg-background focus:p-3"
       >
         Skip to content
       </a>
-      <div className="wide-shell flex h-14 items-center justify-between gap-3 md:grid md:grid-cols-[1fr_auto_1fr]">
-        <div className="flex min-w-0 items-center gap-3">
-          <Link href="/" className="flex min-w-0 items-center gap-2">
-            <BrandLogo className="h-6 w-auto max-w-[9.5rem] sm:h-7 sm:max-w-none" priority />
-          </Link>
-          <span className="hidden text-muted-foreground/70 sm:inline" aria-hidden>
-            /
-          </span>
-          <a
-            href={portfolioUrl}
-            className="meta-text hidden hover:text-foreground sm:inline"
+      <div className="wide-shell flex min-h-14 items-center justify-between gap-2 lg:gap-6">
+        <Link href="/" className="shrink-0">
+          <BrandLogo className="h-8 w-auto sm:h-10" priority />
+        </Link>
+
+        <NavigationMenu.Root aria-label="Sections" className="hidden lg:block">
+          <NavigationMenu.List className="flex items-center gap-5 xl:gap-7">
+            {[home, ...topics].map(({ label, href }) => {
+              const current = currentSection(href);
+              return (
+                <NavigationMenu.Item key={href}>
+                  <NavigationMenu.Link asChild active={Boolean(current)}>
+                    <Link
+                      href={href}
+                      aria-current={current}
+                      className="block border-b-2 border-transparent py-4 text-sm font-semibold hover:text-brand data-[active]:border-brand data-[active]:text-brand"
+                    >
+                      {label}
+                    </Link>
+                  </NavigationMenu.Link>
+                </NavigationMenu.Item>
+              );
+            })}
+          </NavigationMenu.List>
+        </NavigationMenu.Root>
+
+        <div className="flex items-center gap-1">
+          <Link
+            href={home.href}
+            aria-current={currentSection(home.href)}
+            className="px-2 py-2 text-sm font-semibold hover:text-brand aria-[current]:text-brand lg:hidden"
           >
-            cyborgoat
-          </a>
-        </div>
-
-        <nav
-          aria-label="Main navigation"
-          className="hidden items-center gap-7 md:flex"
-        >
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-0.5 justify-self-end">
-          <ThemeToggleButton />
-          <div className="md:hidden">
+            {home.label}
+          </Link>
+          <div className="lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Open menu">
-                  <Menu className="size-5" />
+                <Button variant="ghost" size="icon" aria-label="Browse topics">
+                  <Menu aria-hidden="true" />
                 </Button>
               </SheetTrigger>
-              <SheetContent
-                aria-describedby={undefined}
-                className="p-0 motion-reduce:animate-none motion-reduce:transition-none"
-              >
-                <SheetHeader className="border-b border-rule/60">
-                  <SheetTitle className="meta-text text-left">Menu</SheetTitle>
+              <SheetContent aria-describedby={undefined}>
+                <SheetHeader className="border-b">
+                  <SheetTitle>Topics</SheetTitle>
                 </SheetHeader>
-                <nav aria-label="Main navigation" className="grid px-4">
-                  {navLinks.map(({ href, label }) => (
+                <nav aria-label="Topics" className="grid gap-1 px-4">
+                  {topics.map(({ label, href }) => (
                     <SheetClose key={href} asChild>
                       <Link
                         href={href}
-                        className="border-b border-rule/50 py-4 text-lg font-medium"
+                        aria-current={currentSection(href)}
+                        className="rounded-sm px-3 py-2 text-sm font-semibold hover:bg-accent aria-[current]:bg-accent aria-[current]:text-brand"
                       >
                         {label}
                       </Link>
                     </SheetClose>
                   ))}
-                  <SheetClose asChild>
-                    <a
-                      href={portfolioUrl}
-                      className="border-b border-rule/50 py-4 text-lg font-medium"
-                    >
-                      cyborgoat
-                    </a>
-                  </SheetClose>
                 </nav>
               </SheetContent>
             </Sheet>
           </div>
+          <ThemeToggleButton />
         </div>
       </div>
     </header>
