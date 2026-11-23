@@ -20,7 +20,7 @@ def pr(date='2026-11-10', state='open', merged=False, number=1):
                 head={'ref': f'news/week-of-2026-11-09-update-{date}'}, base={'sha': 'base', 'ref': 'main'})
 
 
-class IncrementalBriefings(unittest.TestCase):
+class WeeklyBriefings(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -28,9 +28,15 @@ class IncrementalBriefings(unittest.TestCase):
             patcher = patch.object(frontier, target, value); patcher.start(); self.addCleanup(patcher.stop)
         self.page = self.root/'topics/science/2026/week-of-2026-11-09.md'
 
-    def update(self, rows, date=dt.date(2026, 11, 10), stories=None):
+    def update(self, rows, date=dt.date(2026, 11, 10), indices=None, stories=None):
+        def respond(instructions, candidates):
+            if instructions.startswith('Choose'):
+                return {'indices': list(range(len(candidates))) if indices is None else indices}
+            return {'stories': [dict(STORY, source_index=i) for i in range(len(candidates))]
+                    if stories is None else stories}
+
         with patch.object(frontier, 'collect', return_value=(rows, {'test': {'ok': True}})), \
-             patch.object(frontier, 'model_json', return_value={'stories': [STORY] if stories is None else stories}) as model:
+             patch.object(frontier, 'model_json', side_effect=respond) as model:
             frontier.daily(date)
         return model
 
@@ -42,7 +48,7 @@ class IncrementalBriefings(unittest.TestCase):
         self.assertTrue((self.root/'data/collections/2026-11-17.json').exists())
         self.assertEqual(len(frontier.records()), 1)
 
-    def test_second_day_appends_and_preserves_reviewed_prose(self):
+    def test_second_day_reranks_and_preserves_reviewed_prose(self):
         self.update([ROW])
         self.page.write_text(self.page.read_text().replace(STORY['summary'], 'A reviewer corrected this summary.'))
         second = dict(ROW, url='https://example.org/two', title='Second discovery', published='2026-11-11T12:00:00+00:00')
@@ -51,8 +57,7 @@ class IncrementalBriefings(unittest.TestCase):
         self.assertIn('A reviewer corrected this summary.', text)
         self.assertLess(text.index('## First discovery'), text.index('## Second discovery'))
         self.assertEqual(text.count('## First discovery'), 1)
-        self.assertEqual(model.call_args.args[1]['candidates'][0]['url'], second['url'])
-        self.assertIn('A reviewer corrected this summary.', model.call_args.args[1]['existing_briefing'])
+        self.assertEqual(model.call_args.args[1][0]['url'], second['url'])
         self.assertIn('Coverage through 2026-11-11', text)
         self.assertFalse((self.root/'articles').exists())
 
@@ -63,12 +68,12 @@ class IncrementalBriefings(unittest.TestCase):
 
     def test_different_urls_for_same_event_use_existing_context(self):
         self.update([ROW]); duplicate = dict(ROW, url='https://another.org/same-event')
-        model = self.update([duplicate], dt.date(2026, 11, 11), stories=[])
-        self.assertIn('## First discovery', model.call_args.args[1]['existing_briefing'])
+        model = self.update([ROW, duplicate], dt.date(2026, 11, 11), indices=[0])
+        self.assertEqual(len(model.call_args.args[1]), 2)
         self.assertEqual(self.page.read_text().count('## First discovery'), 1)
 
     def test_unselected_candidates_are_not_retried_every_day(self):
-        self.update([ROW], stories=[])
+        self.update([ROW], indices=[])
         model = self.update([ROW], dt.date(2026, 11, 11)); model.assert_not_called()
 
     def test_week_rollover_starts_new_page_without_changing_previous_prose(self):
@@ -81,8 +86,8 @@ class IncrementalBriefings(unittest.TestCase):
     def test_monday_finalization_can_append_late_sunday_story(self):
         self.update([ROW]); late = dict(ROW, url='https://example.org/sunday', title='Sunday discovery',
                                        published='2026-11-16T05:00:00+00:00')
-        with patch.object(frontier, 'model_json', return_value={'stories': [STORY]}):
-            frontier.generate(START, through=dt.date(2026, 11, 16), extra_rows=[late])
+        with patch.object(frontier, 'model_json', side_effect=[{'indices': [0, 1]}, {'stories': [STORY]}]):
+            frontier.generate(START, through=dt.date(2026, 11, 16), extra_rows=[ROW, late])
         self.assertIn('## Sunday discovery', self.page.read_text())
         self.assertIn('Reporting period ended.', self.page.read_text())
         state = json.loads((self.root/'data/editions/week-of-2026-11-09.json').read_text())
@@ -93,17 +98,20 @@ class IncrementalBriefings(unittest.TestCase):
         model = self.update([sunday]); model.assert_not_called()
         self.assertIn('No eligible stories collected.', self.page.read_text())
 
-    def test_more_than_eight_total_stories_allowed_across_days(self):
-        for offset in range(2):
-            day = dt.date(2026, 11, 10+offset)
-            rows = [dict(ROW, url=f'https://example.org/{offset}-{i}', title=f'Discovery {offset}-{i}') for i in range(8)]
-            self.update(rows, day, [dict(STORY, source_index=i) for i in range(8)])
-        self.assertEqual(self.page.read_text().count('\n## Discovery'), 16)
+    def test_week_stays_capped_at_twenty_and_late_story_can_replace_earlier_pick(self):
+        rows = [dict(ROW, url=f'https://example.org/{i}', title=f'Discovery {i}') for i in range(20)]
+        self.update(rows)
+        late = dict(ROW, url='https://example.org/late', title='Late discovery')
+        self.update([*rows, late], dt.date(2026, 11, 11), indices=[20, *range(19)])
+        body = self.page.read_text()
+        self.assertEqual(body.count('\n## '), 20)
+        self.assertIn('## Late discovery', body)
+        self.assertNotIn('## Discovery 19', body)
 
     def test_invalid_response_does_not_overwrite_existing_pages(self):
         self.update([ROW]); before = self.page.read_text()
         second = dict(ROW, url='https://example.org/two')
-        with patch.object(frontier, 'model_json', return_value={'stories': [dict(STORY, source_index=99)]}):
+        with patch.object(frontier, 'model_json', return_value={'indices': [99]}):
             with self.assertRaisesRegex(ValueError, 'source reference'):
                 frontier.generate(START, through=dt.date(2026, 11, 11), extra_rows=[second])
         self.assertEqual(self.page.read_text(), before)
@@ -111,11 +119,11 @@ class IncrementalBriefings(unittest.TestCase):
     def test_all_source_failure_and_story_limit(self):
         with patch.object(frontier, 'collect', return_value=([], {'test': {'ok': False}})):
             with self.assertRaisesRegex(ValueError, 'No successful collection'): frontier.daily(dt.date(2026, 11, 10))
-        with self.assertRaisesRegex(ValueError, 'story count'): self.update([ROW], stories=[STORY]*9)
+        with self.assertRaisesRegex(ValueError, 'story count'): self.update([ROW], indices=[0]*21)
 
     def test_dry_run_does_not_write_files(self):
         with patch.object(frontier, 'collect', return_value=([ROW], {'test': {'ok': True}})), \
-             patch.object(frontier, 'model_json', return_value={'stories': [STORY]}), patch('builtins.print'):
+             patch.object(frontier, 'model_json', side_effect=[{'indices': [0]}, {'stories': [STORY]}]), patch('builtins.print'):
             frontier.daily(dt.date(2026, 11, 10), dry=True)
         self.assertEqual(list(self.root.iterdir()), [])
 

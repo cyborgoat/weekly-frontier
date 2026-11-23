@@ -34,7 +34,7 @@ Current reporting week — coverage is incomplete.
 
 ## How the briefings work
 
-Feeds are gathered daily at **10:30 Los Angeles time**, including daylight saving changes. Each run updates the current Monday–Sunday briefing, appending up to eight new selected stories per topic while preserving earlier summaries and reviewer edits. The weekly pages grow through the week; stories remain sections within the topic briefings.
+Feeds are gathered daily at **10:30 Los Angeles time**, including daylight saving changes. Each run considers the articles collected for the current Monday–Sunday briefing. The model ranks them by importance and selects up to 20 stories per topic for the week. Retained stories keep their summaries and reviewer edits.
 
 Daily runs update the week's open review PR. If that PR has been merged, the next daily run opens a fresh update PR for the same weekly pages. Merge whenever you want to publish the coverage so far. Existing subscriptions keep the same edition identity as its content is updated.
 

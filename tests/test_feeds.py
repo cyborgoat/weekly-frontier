@@ -26,7 +26,7 @@ class PublicationFeeds(unittest.TestCase):
                 self.assertIn('<strong>useful</strong>',entry.content[0].value)
                 self.assertNotIn('Collection reports',entry.content[0].value)
                 self.assertIn(feeds.REPO+'/blob/main/topics/ai/2026/',entry.content[0].value)
-                self.assertEqual(entry.link, feeds.BASE + 'week/week-of-2026-11-09/')
+                self.assertEqual(entry.link, feeds.REPO + '/blob/main/weekly/2026/week-of-2026-11-09.md')
                 self.assertEqual(entry.id,rss.entries[0].id)
                 self.assertEqual(entry.published_parsed.tm_mday,14)
                 self.assertEqual(entry.updated_parsed.tm_mday,15)

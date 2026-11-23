@@ -84,15 +84,25 @@ class Completions(unittest.TestCase):
             frontier.completion_text({'error':{'message':'do not print'}})
 
 class CandidateSelection(unittest.TestCase):
-    def test_volume_does_not_crowd_out_sources(self):
-        rows=[dict(source='arxiv',url=f'https://example.org/{i}',published='2026-11-13') for i in range(100)]
-        rows.append(dict(source='lab',url='https://example.org/lab',published='2026-11-12'))
-        selected=frontier.select_candidates(rows,4)
-        self.assertEqual(len(selected),4)
-        self.assertIn('lab',[r['source'] for r in selected])
-    def test_duplicate_urls_not_selected_twice(self):
-        row=dict(source='lab',url='https://example.org/a',published='2026-11-12')
-        self.assertEqual(frontier.select_candidates([row,row]),[row])
+    def test_every_candidate_reaches_model_in_bounded_batches(self):
+        rows = [dict(source='lab', url=f'https://example.org/{i}', title=str(i),
+                     text='Excerpt') for i in range(81)]
+        batches = []
+
+        def rank(_, batch):
+            batches.append(batch)
+            indices = sorted(range(len(batch)), key=lambda i: int(batch[i]['title']), reverse=True)
+            return {'indices': indices[:20]}
+
+        with patch.object(frontier, 'model_json', side_effect=rank):
+            selected = frontier.ranked_candidates('science', rows, 20)
+        self.assertEqual({row['title'] for batch in batches for row in batch}, {row['title'] for row in rows})
+        self.assertTrue(all(len(batch) <= 40 for batch in batches))
+        self.assertEqual([row['title'] for row in selected], [str(i) for i in range(80, 60, -1)])
+
+    def test_duplicate_urls_are_merged(self):
+        row = dict(source='lab', url='https://example.org/a')
+        self.assertEqual(frontier.unique_candidates([row, row]), {row['url']: row})
 
 class ReportingDates(unittest.TestCase):
     def test_invalid_and_extreme_dates_are_excluded(self):

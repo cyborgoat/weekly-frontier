@@ -105,7 +105,7 @@ def publish_review(start, branch, pr):
         print(run('gh', 'pr', 'create', '--base', os.environ.get('DEFAULT_BRANCH', 'main'),
                   '--head', branch, '--title', title, '--body',
                   'Incremental updates to the weekly topic briefings, with daily feed archives. '
-                  'Earlier story prose is preserved and new selections are appended. '
+                  'Each topic briefing selects up to 20 weekly stories and preserves prose for retained picks. '
                   'Daily runs update this PR while it is open; after merging, the next update opens a new PR. '
                   'Review source links, duplicate coverage, and factual accuracy before merging.'))
 

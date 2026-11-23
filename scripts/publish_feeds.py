@@ -46,7 +46,8 @@ def rendered(root, path):
 def public_url(week_slug, topic=None, base=BASE):
     if topic:
         return urljoin(base, f'topic/{topic}/{week_slug}/')
-    return urljoin(base, f'week/{week_slug}/')
+    year = week_slug.removeprefix('week-of-')[:4]
+    return f'{REPO}/blob/main/weekly/{year}/{week_slug}.md'
 
 
 def entries(root, topic=None, base=BASE):
