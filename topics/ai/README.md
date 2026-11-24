@@ -5,11 +5,12 @@ Follow research methods, language models, computer vision, evaluations, open mod
 ## Briefings
 
 <!-- navigation:start -->
-Latest available: [November 16–22, 2026](2026/week-of-2026-11-16.md)
+Latest available: [November 23–29, 2026](2026/week-of-2026-11-23.md)
 Current reporting week — coverage is incomplete.
 
 ### 2026
 
+- [November 23–29, 2026](2026/week-of-2026-11-23.md)
 - [November 16–22, 2026](2026/week-of-2026-11-16.md)
 - [November 9–15, 2026](2026/week-of-2026-11-09.md)
 <!-- navigation:end -->
