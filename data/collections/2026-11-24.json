@@ -1,0 +1,177 @@
+{
+  "bbc-tech": {
+    "ok": true,
+    "entries": 21,
+    "undated": 0
+  },
+  "techcrunch": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "ars": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "bloomberg-technology": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "wsj-technology": {
+    "ok": true,
+    "entries": 40,
+    "undated": 0
+  },
+  "bbc-world": {
+    "ok": true,
+    "entries": 21,
+    "undated": 0
+  },
+  "dw-world": {
+    "ok": true,
+    "entries": 11,
+    "undated": 0
+  },
+  "aljazeera": {
+    "ok": true,
+    "entries": 25,
+    "undated": 0
+  },
+  "bloomberg-politics": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "wsj-world": {
+    "ok": true,
+    "entries": 71,
+    "undated": 0
+  },
+  "fed": {
+    "ok": true,
+    "entries": 15,
+    "undated": 0
+  },
+  "ecb": {
+    "ok": true,
+    "entries": 15,
+    "undated": 0
+  },
+  "guardian-economics": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "bloomberg-markets": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "bloomberg-economics": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "wsj-markets": {
+    "ok": true,
+    "entries": 61,
+    "undated": 0
+  },
+  "bbc-business": {
+    "ok": true,
+    "entries": 56,
+    "undated": 0
+  },
+  "ft-companies": {
+    "ok": true,
+    "entries": 25,
+    "undated": 0
+  },
+  "fortune": {
+    "ok": true,
+    "entries": 10,
+    "undated": 0
+  },
+  "business-insider": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "wsj-business": {
+    "ok": true,
+    "entries": 85,
+    "undated": 0
+  },
+  "nature": {
+    "ok": true,
+    "entries": 75,
+    "undated": 0
+  },
+  "nasa": {
+    "ok": true,
+    "entries": 10,
+    "undated": 0
+  },
+  "arxiv-ai": {
+    "ok": true,
+    "entries": 787,
+    "undated": 0
+  },
+  "huggingface": {
+    "ok": true,
+    "entries": 916,
+    "undated": 0
+  },
+  "deepmind": {
+    "ok": true,
+    "entries": 100,
+    "undated": 0
+  },
+  "openai": {
+    "ok": true,
+    "entries": 1425,
+    "undated": 0
+  },
+  "google-research": {
+    "ok": true,
+    "entries": 100,
+    "undated": 0
+  },
+  "google-ai": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "bair": {
+    "ok": true,
+    "entries": 10,
+    "undated": 0
+  },
+  "interconnects": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "ahead-of-ai": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "lastweekin-ai": {
+    "ok": true,
+    "entries": 20,
+    "undated": 0
+  },
+  "simon-willison": {
+    "ok": true,
+    "entries": 30,
+    "undated": 0
+  },
+  "mit-news-ai": {
+    "ok": true,
+    "entries": 50,
+    "undated": 0
+  }
+}
