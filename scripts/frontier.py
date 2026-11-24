@@ -1,4 +1,6 @@
 import argparse, datetime as dt, json, os, re, time
+from collections import Counter, defaultdict
+from html import unescape
 from pathlib import Path
 from zoneinfo import ZoneInfo
 import feedparser, requests, yaml
@@ -6,6 +8,36 @@ ROOT = Path(__file__).resolve().parents[1]
 TZ = ZoneInfo('America/Los_Angeles')
 SETTINGS = yaml.safe_load((ROOT/'config/settings.yaml').read_text())
 SOURCES = yaml.safe_load((ROOT/'config/sources.yaml').read_text())
+RANKING_CANDIDATE_LIMIT = 30
+
+IMPACT_TERMS = {
+    'technology': r'launch(?:es|ed)?|releas(?:e[sd]?|ing)|chips?|semiconductors?|data cent(?:er|re)s?|'
+                  r'outages?|data breach(?:es)?|cyberattacks?|vulnerabilit(?:y|ies)|antitrust|acqui(?:res?|sitions?)',
+    'politics': r'elections?|referendum|cease[- ]?fire|peace talks|sanctions?|court rul(?:ing|es)|'
+                r'supreme court|parliament|legislation|treat(?:y|ies)|coup|military strikes?|invasion',
+    'finance': r'interest rates?|rate (?:cuts?|hikes?|decisions?)|monetary policy|central banks?|'
+               r'inflation|jobs reports?|gdp|bond yields?|earnings|quarterly results|bankruptcy|'
+               r'debt default|initial public offering|ipos?|mergers?|acquisitions?',
+    'business': r'earnings|quarterly results|profit forecast|layoffs?|bankruptcy|'
+                r'restructuring|initial public offering|ipos?|mergers?|acqui(?:res?|sitions?)|antitrust|recalls?',
+    'science': r'discover(?:y|ies|ed)|researchers? (?:find|found)|study (?:finds|shows)|'
+               r'clinical trials?|peer.reviewed|published in|space missions?|spacecraft|'
+               r'rocket launch|telescope|fossils?|first evidence',
+    'ai': r'(?:model|gpt|claude|gemini|qwen|deepseek|llama) (?:launch|release|weights)|'
+          r'(?:releas(?:es?|ed|ing)|introduc(?:es?|ed|ing)|launch(?:es|ed|ing)?) '
+          r'(?:a |its |the )?(?:new )?(?:models?|gpt|claude|gemini|qwen|deepseek|llama)|'
+          r'technical reports?|benchmarks?|evaluations?|safety (?:tests?|findings|research)|'
+          r'frontier ai risk|datasets?|open weights|developer tools?|training (?:methods?|data)|'
+          r'(?:gemini|claude|openai) api|(?:coding|codex) (?:agent|sandbox|plugin)s?',
+}
+IMPACT_PATTERNS = {
+    topic: re.compile(rf'\b(?:{pattern})\b', re.I) for topic, pattern in IMPACT_TERMS.items()
+}
+LOW_PRIORITY_TITLE = re.compile(
+    r'^\s*(?:opinion|editorial)\s*[:|–—-]|\b(?:live blog|live updates|'
+    r'deals roundup|daily (?:recap|roundup)|buying guide|gift guide)\b|^\s*(?:the )?best .+\bto buy\b',
+    re.I,
+)
 
 def request(method, url, **kw):
     timeout = kw.pop('timeout', 60)
@@ -106,9 +138,84 @@ def unique_candidates(rows):
     return candidates
 
 
+def shortlist_candidates(topic, candidates, reviewed=()):
+    """Select the model's input from feed metadata without making network requests."""
+    if len(candidates) <= RANKING_CANDIDATE_LIMIT:
+        return candidates
+
+    sources = {source['id']: source for source in SOURCES}
+    impact = IMPACT_PATTERNS[topic]
+
+    def priority(row):
+        title = unescape(row['title'])
+        source = sources.get(row['source'], {})
+        score = 0
+        if impact.search(title):
+            score = 4
+        elif impact.search(unescape(row['text'][:1200])):
+            score = 2
+        if score and source.get('kind') in {'primary', 'lab'}:
+            score += 2
+        if source.get('kind') == 'roundup' or LOW_PRIORITY_TITLE.search(title):
+            score -= 3
+        published = dt.datetime.fromisoformat(row['published']).timestamp() if row.get('published') else float('-inf')
+        return (-score, row['url'] not in reviewed, -published, row['url'])
+
+    groups = []
+    exact_titles = {}
+    groups_by_term = defaultdict(set)
+    ordered = sorted(((priority(row), row) for row in candidates), key=lambda item: item[0])
+    for article_priority, row in ordered:
+        title = unescape(row['title']).casefold()
+        words = tuple(re.findall(r'[^\W_]+', title))
+        numbers = tuple(re.findall(r'\d+(?:[.,]\d+)*', title))
+        terms = set(words)
+        key = (words, numbers)
+        group_id = exact_titles.get(key)
+        if group_id is None and len(terms) >= 6:
+            # Only compare with representatives sharing enough headline terms.
+            shared = Counter(group for term in terms for group in groups_by_term[term])
+            for candidate_id in sorted(group for group, count in shared.items() if count >= 6):
+                group = groups[candidate_id]
+                overlap = shared[candidate_id] / len(terms | group['terms'])
+                if overlap >= 0.8 and numbers == group['numbers']:
+                    group_id = candidate_id
+                    break
+        source_id = row['source']
+        publisher = sources.get(source_id, {}).get('publisher', source_id)
+        if group_id is None:
+            group_id = len(groups)
+            groups.append(dict(row=row, priority=article_priority, terms=terms, numbers=numbers,
+                               publisher=publisher, publishers=set()))
+            if len(terms) >= 6:
+                for term in terms:
+                    groups_by_term[term].add(group_id)
+        if words:
+            exact_titles[key] = group_id
+        if source_id != 'Existing briefing':
+            groups[group_id]['publishers'].add(publisher)
+
+    def group_priority(group):
+        negative_score, unreviewed, newest, url = group['priority']
+        corroborated = len(group['publishers']) > 1
+        return (negative_score - int(corroborated), unreviewed, newest, url)
+
+    # Discount each publisher's candidates by one point per five higher-ranked stories from it.
+    publisher_counts = Counter()
+    weighted = []
+    for group in sorted(groups, key=group_priority):
+        score, unreviewed, newest, url = group_priority(group)
+        publisher = group['publisher']
+        weighted.append(((score + publisher_counts[publisher] // 5, unreviewed, newest, url), group['row']))
+        publisher_counts[publisher] += 1
+    return [row for _, row in sorted(weighted, key=lambda item: item[0])[:RANKING_CANDIDATE_LIMIT]]
+
+
 def ranked_candidates(topic, candidates, limit):
-    """Review every candidate in bounded batches, then rank the combined shortlist."""
-    batch_size = 40
+    """Use the model to rank the local shortlist."""
+    if not candidates:
+        return []
+
     ai_priority = (
         'For AI, give higher priority to substantive model releases, technical reports, '
         'evaluation and safety findings, datasets, and developer tooling from major AI labs, '
@@ -119,35 +226,34 @@ def ranked_candidates(topic, candidates, limit):
         if topic == 'ai' else ''
     )
 
-    def rank(batch):
-        payload = [
-            dict(title=row['title'], source=publisher_name(row['source']),
-                 url=row['url'], excerpt=row['text'][:1200])
-            for row in batch
-        ]
-        result = model_json(
-            f'Choose up to {limit} distinct, consequential {topic} stories for a reader catching up '
-            'on the week. Rank by impact, relevance to the topic and strength of evidence. '
-            'Prefer original reporting and primary sources. '
-            f'{ai_priority}'
-            'Choose one source per event. '
-            'Skip low-value or out-of-topic stories. Return {"indices":[0, ...]} in descending '
-            'importance, using zero-based indices into the supplied candidates.',
-            payload)
-        indices = result.get('indices')
+    payload = [
+        dict(index=index, title=row['title'], source=publisher_name(row['source']),
+             url=row['url'], excerpt=row['text'][:1200])
+        for index, row in enumerate(candidates)
+    ]
+    instructions = (
+        f'Choose up to {min(limit, len(payload))} distinct, consequential {topic} stories for a reader catching up '
+        'on the week. Rank by impact, relevance to the topic and strength of evidence. '
+        'Prefer original reporting and primary sources. '
+        f'{ai_priority}'
+        'Choose one source per event. Skip low-value or out-of-topic stories. '
+        'Return a JSON object with an "indices" array in descending importance. '
+        f'Copy the supplied integer "index" fields exactly (0 through {len(payload) - 1}). '
+        'Each index may appear only once.'
+    )
+    for attempt in range(2):
+        result = model_json(instructions, payload)
+        indices = result.get('indices') if isinstance(result, dict) else None
         if not isinstance(indices, list) or len(indices) > limit:
-            raise ValueError('Invalid ranked story count')
-        if any(type(i) is not int or not 0 <= i < len(batch) for i in indices) or len(set(indices)) != len(indices):
-            raise ValueError('Invalid ranked source reference')
-        return [batch[i] for i in indices]
-
-    while len(candidates) > batch_size:
-        candidates = [
-            row
-            for offset in range(0, len(candidates), batch_size)
-            for row in rank(candidates[offset:offset + batch_size])
-        ]
-    return rank(candidates) if candidates else []
+            error = 'Invalid ranked story count'
+        elif any(type(i) is not int or not 0 <= i < len(payload) for i in indices) or len(set(indices)) != len(indices):
+            error = 'Invalid ranked source reference'
+        else:
+            return [candidates[i] for i in indices]
+        if attempt == 0:
+            print(f'Retrying {topic} ranking: {error}', flush=True)
+            instructions += ' The previous result failed validation. Check each index against the supplied list.'
+    raise ValueError(f'{error} for {topic} after two attempts')
 
 
 def in_reporting_week(value, start, end):
@@ -245,7 +351,9 @@ def curate_topic(topic, body, candidates, limit):
         candidates.setdefault(url, dict(url=url, title=section.splitlines()[0][3:],
                                         text=section, source='Existing briefing'))
 
-    selected = ranked_candidates(topic, list(candidates.values()), limit)
+    shortlist = shortlist_candidates(topic, list(candidates.values()), existing)
+    print(f'Curating {topic}: {len(candidates)} eligible, {len(shortlist)} shortlisted', flush=True)
+    selected = ranked_candidates(topic, shortlist, limit)
     new = [row for row in selected if row['url'] not in existing]
     if new:
         result = model_json(
@@ -325,7 +433,6 @@ def generate(start, dry=False, regenerate=False, through=None, extra_rows=()):
         urls = sorted(candidates)
         _, sections = story_sections(body)
         if regenerate or urls != ranked_urls.get(topic) or len(sections) > limit:
-            print(f'Curating {topic}: {len(candidates)} eligible articles', flush=True)
             body = curate_topic(topic, body, candidates, limit)
         ranked_urls[topic] = urls
         body = coverage_status(body, start, through)

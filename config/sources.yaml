@@ -1,32 +1,32 @@
-- {id: bbc-tech, name: BBC Technology, topic: technology, url: 'https://feeds.bbci.co.uk/news/technology/rss.xml'}
+- {id: bbc-tech, name: BBC Technology, topic: technology, publisher: bbc, url: 'https://feeds.bbci.co.uk/news/technology/rss.xml'}
 - {id: techcrunch, name: TechCrunch, topic: technology, url: 'https://techcrunch.com/feed/'}
 - {id: ars, name: Ars Technica, topic: technology, url: 'https://feeds.arstechnica.com/arstechnica/index'}
-- {id: bloomberg-technology, name: Bloomberg Technology, topic: technology, url: 'https://www.bloomberg.com/feeds/technology/news.rss'}
-- {id: wsj-technology, name: WSJ Technology, topic: technology, url: 'https://feeds.content.dowjones.io/public/rss/RSSWSJD'}
-- {id: bbc-world, name: BBC World, topic: politics, url: 'https://feeds.bbci.co.uk/news/world/rss.xml'}
+- {id: bloomberg-technology, name: Bloomberg Technology, topic: technology, publisher: bloomberg, url: 'https://www.bloomberg.com/feeds/technology/news.rss'}
+- {id: wsj-technology, name: WSJ Technology, topic: technology, publisher: wsj, url: 'https://feeds.content.dowjones.io/public/rss/RSSWSJD'}
+- {id: bbc-world, name: BBC World, topic: politics, publisher: bbc, url: 'https://feeds.bbci.co.uk/news/world/rss.xml'}
 - {id: dw-world, name: Deutsche Welle World, topic: politics, url: 'https://rss.dw.com/rdf/rss-en-world'}
 - {id: aljazeera, name: Al Jazeera English, topic: politics, url: 'https://www.aljazeera.com/xml/rss/all.xml'}
-- {id: bloomberg-politics, name: Bloomberg Politics, topic: politics, url: 'https://www.bloomberg.com/feeds/politics/news.rss'}
-- {id: wsj-world, name: WSJ World News, topic: politics, url: 'https://feeds.content.dowjones.io/public/rss/RSSWorldNews'}
-- {id: fed, name: Federal Reserve, topic: finance, url: 'https://www.federalreserve.gov/feeds/press_monetary.xml'}
+- {id: bloomberg-politics, name: Bloomberg Politics, topic: politics, publisher: bloomberg, url: 'https://www.bloomberg.com/feeds/politics/news.rss'}
+- {id: wsj-world, name: WSJ World News, topic: politics, publisher: wsj, url: 'https://feeds.content.dowjones.io/public/rss/RSSWorldNews'}
+- {id: fed, name: Federal Reserve, topic: finance, kind: primary, url: 'https://www.federalreserve.gov/feeds/press_monetary.xml'}
 - {id: ecb, name: European Central Bank, topic: finance, kind: primary, url: 'https://www.ecb.europa.eu/rss/pub.html'}
 - {id: guardian-economics, name: The Guardian Economics, topic: finance, url: 'https://www.theguardian.com/business/economics/rss'}
-- {id: bloomberg-markets, name: Bloomberg Markets, topic: finance, url: 'https://www.bloomberg.com/feeds/markets/news.rss'}
-- {id: bloomberg-economics, name: Bloomberg Economics, topic: finance, url: 'https://www.bloomberg.com/feeds/economics/news.rss'}
-- {id: wsj-markets, name: WSJ Markets, topic: finance, url: 'https://feeds.content.dowjones.io/public/rss/RSSMarketsMain'}
-- {id: bbc-business, name: BBC Business, topic: business, url: 'https://feeds.bbci.co.uk/news/business/rss.xml'}
+- {id: bloomberg-markets, name: Bloomberg Markets, topic: finance, publisher: bloomberg, url: 'https://www.bloomberg.com/feeds/markets/news.rss'}
+- {id: bloomberg-economics, name: Bloomberg Economics, topic: finance, publisher: bloomberg, url: 'https://www.bloomberg.com/feeds/economics/news.rss'}
+- {id: wsj-markets, name: WSJ Markets, topic: finance, publisher: wsj, url: 'https://feeds.content.dowjones.io/public/rss/RSSMarketsMain'}
+- {id: bbc-business, name: BBC Business, topic: business, publisher: bbc, url: 'https://feeds.bbci.co.uk/news/business/rss.xml'}
 - {id: ft-companies, name: Financial Times Companies, topic: business, url: 'https://www.ft.com/companies?format=rss'}
 - {id: fortune, name: Fortune, topic: business, url: 'https://fortune.com/feed/'}
 - {id: business-insider, name: Business Insider, topic: business, url: 'https://www.businessinsider.com/rss'}
-- {id: wsj-business, name: WSJ US Business, topic: business, url: 'https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness'}
+- {id: wsj-business, name: WSJ US Business, topic: business, publisher: wsj, url: 'https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness'}
 - {id: nature, name: Nature, topic: science, url: 'https://www.nature.com/nature.rss'}
-- {id: nasa, name: NASA, topic: science, url: 'https://www.nasa.gov/feed/'}
+- {id: nasa, name: NASA, topic: science, kind: primary, url: 'https://www.nasa.gov/feed/'}
 - {id: arxiv-ai, name: arXiv, topic: ai, kind: preprint, url: 'https://rss.arxiv.org/rss/cs.AI+cs.LG+cs.CL+cs.CV+stat.ML'}
 - {id: huggingface, name: Hugging Face, topic: ai, kind: tooling, url: 'https://huggingface.co/blog/feed.xml'}
-- {id: deepmind, name: Google DeepMind, topic: ai, kind: lab, url: 'https://deepmind.google/blog/rss.xml'}
+- {id: deepmind, name: Google DeepMind, topic: ai, kind: lab, publisher: google, url: 'https://deepmind.google/blog/rss.xml'}
 - {id: openai, name: OpenAI, topic: ai, kind: lab, url: 'https://openai.com/news/rss.xml'}
-- {id: google-research, name: Google Research, topic: ai, kind: lab, url: 'https://research.google/blog/rss/'}
-- {id: google-ai, name: Google AI Blog, topic: ai, kind: lab, url: 'https://blog.google/innovation-and-ai/technology/ai/rss/'}
+- {id: google-research, name: Google Research, topic: ai, kind: lab, publisher: google, url: 'https://research.google/blog/rss/'}
+- {id: google-ai, name: Google AI Blog, topic: ai, kind: lab, publisher: google, url: 'https://blog.google/innovation-and-ai/technology/ai/rss/'}
 - {id: bair, name: Berkeley AI Research, topic: ai, kind: lab, url: 'https://bair.berkeley.edu/blog/feed.xml'}
 - {id: interconnects, name: Interconnects, topic: ai, kind: analysis, url: 'https://www.interconnects.ai/feed'}
 - {id: ahead-of-ai, name: Ahead of AI, topic: ai, kind: analysis, url: 'https://magazine.sebastianraschka.com/feed'}

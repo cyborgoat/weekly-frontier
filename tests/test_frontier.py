@@ -84,23 +84,46 @@ class Completions(unittest.TestCase):
             frontier.completion_text({'error':{'message':'do not print'}})
 
 class CandidateSelection(unittest.TestCase):
-    def test_every_candidate_reaches_model_in_bounded_batches(self):
+    def test_topic_sends_one_shortlist_with_explicit_indices(self):
+        rows = [dict(source='arxiv-ai', url=f'https://example.org/{i}', title=f'Evaluation notes {i}',
+                     text='Excerpt') for i in range(145)]
+        release = dict(source='openai', url='https://example.org/release',
+                       title='OpenAI releases a new model', text='Excerpt')
+        independent = dict(source='simon-willison', url='https://example.org/tools',
+                           title='Hands-on notes', text='How to use the new developer tools')
+        with patch.object(frontier, 'model_json', return_value={'indices': []}) as model:
+            frontier.curate_topic('ai', '# Briefing\n',
+                                  frontier.unique_candidates([*rows, release, independent]), 30)
+        model.assert_called_once()
+        instructions, payload = model.call_args.args
+        self.assertIn('Anthropic', instructions)
+        self.assertEqual([row['index'] for row in payload], list(range(30)))
+        self.assertEqual(payload[0]['url'], release['url'])
+        self.assertIn(independent['url'], {row['url'] for row in payload})
+
+    def test_duplicate_coverage_uses_one_slot_but_different_figures_stay_distinct(self):
+        title = 'Central bank cuts interest rates by 25 basis points'
+        stories = [
+            dict(source='fed', url='https://example.org/original', title=title, text='Excerpt'),
+            dict(source='bbc-business', url='https://example.org/duplicate', title=f'{title} today', text='Excerpt'),
+            dict(source='bloomberg-markets', url='https://example.org/other',
+                 title=title.replace('25', '50'), text='Excerpt'),
+        ]
+        rows = [dict(source='unknown', url=f'https://example.org/{i}', title=f'Briefing {i}',
+                     text='Excerpt') for i in range(30)]
+        shortlist = frontier.shortlist_candidates('finance', rows + stories)
+        self.assertEqual(shortlist[:2], [stories[0], stories[2]])
+        self.assertNotIn(stories[1], shortlist)
+        self.assertEqual(len(shortlist), 30)
+
+    def test_ranking_retries_an_out_of_range_index(self):
         rows = [dict(source='lab', url=f'https://example.org/{i}', title=str(i),
-                     text='Excerpt') for i in range(81)]
-        batches = []
-
-        def rank(instructions, batch):
-            for lab in ['OpenAI', 'Anthropic', 'Qwen', 'DeepSeek', 'Google', 'Microsoft']:
-                self.assertIn(lab, instructions)
-            batches.append(batch)
-            indices = sorted(range(len(batch)), key=lambda i: int(batch[i]['title']), reverse=True)
-            return {'indices': indices[:30]}
-
-        with patch.object(frontier, 'model_json', side_effect=rank):
-            selected = frontier.ranked_candidates('ai', rows, 30)
-        self.assertEqual({row['title'] for batch in batches for row in batch}, {row['title'] for row in rows})
-        self.assertTrue(all(len(batch) <= 40 for batch in batches))
-        self.assertEqual([row['title'] for row in selected], [str(i) for i in range(80, 50, -1)])
+                     text='Excerpt') for i in range(2)]
+        with patch.object(frontier, 'model_json', side_effect=[{'indices': [2]}, {'indices': [1]}]) as model:
+            self.assertEqual(frontier.ranked_candidates('ai', rows, 30), [rows[1]])
+        self.assertEqual(model.call_count, 2)
+        self.assertEqual(model.call_args_list[0].args[1], model.call_args_list[1].args[1])
+        self.assertIn('previous result failed validation', model.call_args.args[0])
 
     def test_duplicate_urls_are_merged(self):
         row = dict(source='lab', url='https://example.org/a')

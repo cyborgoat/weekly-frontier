@@ -99,14 +99,14 @@ class WeeklyBriefings(unittest.TestCase):
         self.assertIn('No eligible stories collected.', self.page.read_text())
 
     def test_week_stays_capped_at_thirty_and_late_story_can_replace_earlier_pick(self):
-        rows = [dict(ROW, url=f'https://example.org/{i}', title=f'Discovery {i}') for i in range(30)]
+        rows = [dict(ROW, url=f'https://example.org/{i:02d}', title=f'Science news {i}') for i in range(30)]
         self.update(rows)
         late = dict(ROW, url='https://example.org/late', title='Late discovery')
-        self.update([*rows, late], dt.date(2026, 11, 11), indices=[30, *range(29)])
+        self.update([*rows, late], dt.date(2026, 11, 11))
         body = self.page.read_text()
         self.assertEqual(body.count('\n## '), 30)
         self.assertIn('## Late discovery', body)
-        self.assertNotIn('## Discovery 29', body)
+        self.assertNotIn('## Science news 29', body)
 
     def test_invalid_response_does_not_overwrite_existing_pages(self):
         self.update([ROW]); before = self.page.read_text()
