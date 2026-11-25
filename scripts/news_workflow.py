@@ -146,25 +146,30 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('command', choices=['mode', 'daily', 'collect', 'generate'])
     parser.add_argument('--date', type=dt.date.fromisoformat); parser.add_argument('--week-of')
-    args = parser.parse_args(); now = dt.datetime.now(frontier.TZ)
+    args = parser.parse_args()
+    now_utc = dt.datetime.now(dt.timezone.utc)
+    # Mode DST checks still need a zoned timestamp; schedules are UTC.
+    now = now_utc.astimezone(frontier.TZ)
     if args.command == 'mode':
         event = os.environ.get('EVENT', 'schedule')
         schedule = os.environ.get('SCHEDULE', '')
         command = scheduled_command(
-            now, event, os.environ.get('COMMAND') or 'daily', schedule)
+            now_utc, event, os.environ.get('COMMAND') or 'daily', schedule)
         if command == 'collect': command = 'daily'
         with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
             output.write(f'command={command}\n')
             # Bind work to the cron's intended UTC date, not the delayed wall clock.
             if event == 'schedule' and command:
-                intended = intended_cron_time(now, schedule)
+                intended = intended_cron_time(now_utc, schedule)
                 if intended is not None:
                     output.write(f'date={intended.date().isoformat()}\n')
         return
     prs = pull_requests()
     run('git', 'config', 'user.name', 'weekly-frontier[bot]')
     run('git', 'config', 'user.email', 'weekly-frontier@users.noreply.github.com')
-    prepare('daily' if args.command == 'collect' else args.command, args.date or now.date(), prs, args.week_of)
+    # Coverage through / branch update date default to the UTC run day (matches cron).
+    prepare('daily' if args.command == 'collect' else args.command,
+            args.date or now_utc.date(), prs, args.week_of)
 
 
 if __name__ == '__main__': main()
