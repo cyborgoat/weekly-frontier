@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { SocialLinks } from "@/components/SocialLinks";
 import { SubscribeMenu } from "@/components/SubscribeMenu";
-import { githubUrl, portfolioUrl } from "@/lib/site";
+import { portfolioUrl } from "@/lib/site";
 
 export function SiteFooter() {
   return (
@@ -16,10 +16,8 @@ export function SiteFooter() {
             A project by <a href={portfolioUrl} className="text-link">cyborgoat</a>
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <a href={githubUrl} className="text-link inline-flex items-center gap-1">
-            GitHub <ArrowUpRight aria-hidden="true" className="size-3.5" />
-          </a>
+        <div className="flex items-center gap-2">
+          <SocialLinks />
           <SubscribeMenu />
         </div>
       </div>

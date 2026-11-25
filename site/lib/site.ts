@@ -1,6 +1,7 @@
 export const siteUrl = "https://www.cyborgoat.com/weekly-frontier";
 export const portfolioUrl = "https://www.cyborgoat.com";
-export const githubUrl = "https://github.com/cyborgoat/weekly-frontier";
+export const githubUrl = "https://github.com/cyborgoat";
+export const githubRepoUrl = "https://github.com/cyborgoat/weekly-frontier";
 export const basePath = "/weekly-frontier";
 
 export const TOPICS = [

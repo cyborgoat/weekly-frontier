@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { NavigationMenu } from "radix-ui";
 import { BrandLogo } from "@/components/BrandLogo";
+import { SocialLinks } from "@/components/SocialLinks";
 import { ThemeToggleButton } from "@/components/theme-toggle-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,6 +105,7 @@ export function SiteHeader() {
               </SheetContent>
             </Sheet>
           </div>
+          <SocialLinks />
           <ThemeToggleButton />
         </div>
       </div>
