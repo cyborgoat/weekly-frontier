@@ -2,8 +2,9 @@ name: News archive
 on:
   schedule:
     # Fixed UTC times. Mode maps cron → job by identity + intended UTC date.
-    - cron: '0 6 * * *' # daily (06:00 UTC)
-    - cron: '0 7 * * *' # generate (07:00 UTC)
+    # Both target the current reporting week; generate also finalizes the prior week if still open.
+    - cron: '0 6 * * *' # daily collect + current week (06:00 UTC)
+    - cron: '0 7 * * *' # generate current week / finalize prior (07:00 UTC)
   workflow_dispatch:
     inputs:
       command:
@@ -13,7 +14,7 @@ on:
       date:
         description: Collection date YYYY-MM-DD (optional; cannot reconstruct expired feed history)
       week_of:
-        description: Monday date (optional; daily defaults to current week, generate to previous week)
+        description: Monday date (optional; defaults to the current reporting week)
 permissions:
   contents: write
   pull-requests: write

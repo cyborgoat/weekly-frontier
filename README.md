@@ -39,7 +39,7 @@ Feeds are gathered daily at **06:00 UTC**. Each run considers the articles colle
 
 Daily runs update the week's open review PR. If that PR has been merged, the next daily run opens a fresh update PR for the same weekly pages. Merge whenever you want to publish the coverage so far. Existing subscriptions keep the same edition identity as its content is updated.
 
-The previous week's briefing is finalized from **07:00 UTC** (appending late Sunday stories once, then locking the edition). Reporting periods use source publication dates in Los Angeles time. Current-week coverage is labeled as in progress.
+From **07:00 UTC**, generate refreshes the current week from archives and finalizes the prior week if it is still open (late Sunday catch-up, then lock). Reporting periods use source publication dates in Los Angeles time. Current-week coverage is labeled as in progress.
 
 ## Sources and reading notes
 

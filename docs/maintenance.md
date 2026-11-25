@@ -18,7 +18,7 @@ python scripts/frontier.py generate --week-of 2026-11-16 --date 2026-11-18 --dry
 python -m unittest discover -s tests
 ```
 
-`collect` archives feed records only. `daily` collects new records and updates the current week's topic briefings. `generate --week-of` curates eligible archived records for a specified reporting week, defaulting to the previous week. `--date` specifies the collection/coverage date in Los Angeles time; polling always reads current feeds and cannot reconstruct expired history. Future publication timestamps are excluded.
+`collect` archives feed records only. `daily` collects new records and updates the current week's topic briefings. `generate` curates eligible archived records for the current reporting week (or `--week-of` when set). `--date` specifies the collection/coverage date in Los Angeles time; polling always reads current feeds and cannot reconstruct expired history. Future publication timestamps are excluded.
 
 Each topic briefing appends at most **5 new stories per day** (`daily_story_limit`). Published stories are never replaced or removed; the week stacks across days. The model ranks only newly seen candidates for relevance, impact, and strength of evidence, and is instructed to choose one source per event. Retained stories keep their summaries, citations, and reviewer edits. The model summarizes new selections from their archived excerpts. AI rankings give extra weight to substantive releases, research, and developer tooling from major AI labs while retaining independent research and reporting.
 
@@ -36,7 +36,7 @@ There is one open review PR per reporting week. Its branch begins `news/week-of-
 
 Weekly Markdown stays at `weekly/<year>/week-of-YYYY-MM-DD.md` and `topics/<topic>/<year>/week-of-YYYY-MM-DD.md`. Current-week pages show a coverage date and an in-progress notice. Navigation points to the latest available reporting week.
 
-At **07:00 UTC daily**, the workflow checks the previous reporting week. From Monday onward it can append late Sunday stories (still ≤5 new that run) and mark the reporting period as ended. After finalization, later generate runs skip that week. It reads pending archive records as well as merged records, so Monday's current-week PR does not need to merge before Sunday stories can be summarized. Each source URL appears at most once per topic briefing.
+At **07:00 UTC daily**, the workflow refreshes the **current** reporting week from archives (no new feed poll). If the prior week is still open, the same run appends late Sunday stories (≤5 new) and marks that prior edition finalized. After finalization, later runs leave that prior week alone. Pending archive records on the open review PR are included, so Monday's current-week PR does not need to merge before Sunday stories can be summarized. Each source URL appears at most once per topic briefing.
 
 Manual dispatch supports `daily` or `generate`, an optional collection/coverage date, and an optional Monday date. It runs the selected branch and targets content PRs to that branch, allowing feature-branch testing before merging. Scheduled runs use the default branch. Local `daily` always targets its date's current week; workflow dispatch also accepts an explicit week override.
 

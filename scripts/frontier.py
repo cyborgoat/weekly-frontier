@@ -492,5 +492,5 @@ if __name__ == '__main__':
     today = dt.datetime.now(TZ).date()
     if args.command == 'collect': collect(args.dry_run, args.date)
     elif args.command == 'daily': daily(args.date or today, args.dry_run)
-    else: generate(monday(args.week_of) if args.week_of else week_start(today)-dt.timedelta(days=7),
+    else: generate(monday(args.week_of) if args.week_of else week_start(today),
                    args.dry_run, args.regenerate, through=args.date or today)

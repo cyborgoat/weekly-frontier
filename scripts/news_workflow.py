@@ -115,8 +115,8 @@ def publish_review(start, branch, pr):
 
 
 def prepare(command, date, prs, requested=None):
-    start = frontier.monday(requested) if requested else (
-        frontier.week_start(date) if command == 'daily' else frontier.week_start(date)-dt.timedelta(days=7))
+    # daily and generate both target the current reporting week unless week_of is set.
+    start = frontier.monday(requested) if requested else frontier.week_start(date)
     pending = [row for pr in prs if pr['state'] == 'open' for row in pending_records(pr)]
     # Collect before checking out the pending review so code/settings come from the selected base branch.
     rows = []; outcomes = {}
@@ -129,14 +129,16 @@ def prepare(command, date, prs, requested=None):
         if state_path.exists() and frontier.edition_finalized(json.loads(state_path.read_text())):
             print(f'week-of-{start} is already finalized; skipping.')
             return
-        if not (frontier.ROOT/f'weekly/{start.year}/week-of-{start}.md').exists() and not any(
-                review_week(pr) == start for pr in prs) and not any(
-                frontier.in_reporting_week(row['published'], start, start+dt.timedelta(days=7)) for row in pending):
-            print('No previous weekly edition to finalize.'); return
     branch, review = checkout_review(start, date, prs)
     if branch is None: return
     if command == 'daily': frontier.archive_collection(date, rows, outcomes)
-    frontier.generate(start, through=date, extra_rows=[*pending, *rows])
+    extra = [*pending, *rows]
+    # Lock the prior week in the same run once we have moved past it (late Sunday catch-up).
+    previous = start - dt.timedelta(days=7)
+    prev_path = frontier.ROOT/f'data/editions/week-of-{previous}.json'
+    if prev_path.exists() and not frontier.edition_finalized(json.loads(prev_path.read_text())):
+        frontier.generate(previous, through=date, extra_rows=extra)
+    frontier.generate(start, through=date, extra_rows=extra)
     publish_review(start, branch, review)
 
 

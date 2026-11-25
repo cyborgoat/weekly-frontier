@@ -195,5 +195,24 @@ class ReviewLifecycle(unittest.TestCase):
              patch.object(frontier, 'generate') as generate, patch.object(workflow, 'publish_review'):
             workflow.prepare('daily', dt.date(2026, 11, 11), [pr()])
         self.assertEqual(collect.call_args.kwargs['known_urls'], [ROW['url']])
+        self.assertEqual(generate.call_args.args[0], START)
         self.assertEqual(generate.call_args.kwargs['extra_rows'], [ROW])
         archive.assert_called_once()
+
+    def test_generate_defaults_to_current_week_and_finalizes_prior(self):
+        prior = START - dt.timedelta(days=7)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            edition = root/'data/editions'/f'week-of-{prior}.json'
+            edition.parent.mkdir(parents=True)
+            edition.write_text(json.dumps({
+                'week_of': str(prior),
+                'through': str(prior + dt.timedelta(days=6)),
+                'finalized': False,
+            }))
+            with patch.object(frontier, 'ROOT', root), \
+                 patch.object(workflow, 'pending_records', return_value=[]), \
+                 patch.object(workflow, 'checkout_review', return_value=('branch', None)), \
+                 patch.object(frontier, 'generate') as generate, patch.object(workflow, 'publish_review'):
+                workflow.prepare('generate', dt.date(2026, 11, 11), [])
+        self.assertEqual([call.args[0] for call in generate.call_args_list], [prior, START])
