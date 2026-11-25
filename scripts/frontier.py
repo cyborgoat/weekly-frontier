@@ -44,6 +44,12 @@ def request(method, url, **kw):
     for attempt in range(3):
         try:
             r = requests.request(method, url, timeout=timeout, **kw); r.raise_for_status(); return r
+        except requests.HTTPError as exc:
+            if attempt == 2:
+                body = (exc.response.text or '')[:500] if exc.response is not None else ''
+                print(f'HTTP {exc.response.status_code if exc.response is not None else "?"} body={body!r}', flush=True)
+                raise
+            time.sleep(2 ** attempt)
         except requests.RequestException:
             if attempt == 2: raise
             time.sleep(2 ** attempt)
@@ -434,8 +440,8 @@ def generate(start, dry=False, regenerate=False, through=None, extra_rows=()):
     limit = SETTINGS['daily_story_limit']
     if type(limit) != int or not 1 <= limit <= 10:
         raise ValueError('daily_story_limit must be between 1 and 10')
-    # Keep prior candidate fingerprints across setting renames; do not force a full rewrite.
-    ranked_urls = dict(state.get('ranked_urls') or {})
+    # Prefer ranked_urls; fall back to legacy processed_urls so finalize does not re-rank old rejects.
+    ranked_urls = dict(state.get('ranked_urls') or state.get('processed_urls') or {})
     topics = list(dict.fromkeys(s['topic'] for s in SOURCES))
     paths = {topic: ROOT/f'topics/{topic}/{start.year}/{key}.md' for topic in topics}
     existing = {topic: path.read_text() if path.exists() else

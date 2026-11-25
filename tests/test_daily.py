@@ -78,6 +78,24 @@ class WeeklyBriefings(unittest.TestCase):
         self.update([ROW], indices=[])
         model = self.update([ROW], dt.date(2026, 11, 11)); model.assert_not_called()
 
+    def test_legacy_processed_urls_are_treated_as_prior(self):
+        page = self.root/'topics/science/2026/week-of-2026-11-09.md'
+        page.parent.mkdir(parents=True)
+        page.write_text('# Science: week-of-2026-11-09\n\nReporting week: November 9–15, 2026\n\n'
+                        '## Kept story\n\nSource: [Test](https://example.org/kept)\n\n')
+        edition = self.root/'data/editions/week-of-2026-11-09.json'
+        edition.parent.mkdir(parents=True)
+        edition.write_text(json.dumps({
+            'week_of': '2026-11-09', 'through': '2026-11-15', 'finalized': False,
+            'processed_urls': {'science': [ROW['url'], 'https://example.org/kept']},
+        }))
+        with patch.object(frontier, 'model_json') as model:
+            frontier.generate(START, through=dt.date(2026, 11, 16), extra_rows=[ROW])
+        model.assert_not_called()
+        state = json.loads(edition.read_text())
+        self.assertTrue(state['finalized'])
+        self.assertIn('## Kept story', page.read_text())
+
     def test_week_rollover_starts_new_page_without_changing_previous_prose(self):
         self.update([ROW]); previous = self.page.read_text()
         next_week = dict(ROW, url='https://example.org/next', published='2026-11-16T12:00:00+00:00')
