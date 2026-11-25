@@ -12,9 +12,9 @@ on:
         options: [daily, generate]
         default: daily
       date:
-        description: Collection date YYYY-MM-DD (optional; cannot reconstruct expired feed history)
+        description: Collection/coverage day YYYY-MM-DD. Leave empty for today. Not the week Monday—use week_of for that.
       week_of:
-        description: Monday date (optional; defaults to the current reporting week)
+        description: Reporting-week Monday YYYY-MM-DD (optional; defaults to the current week)
 permissions:
   contents: write
   pull-requests: write
