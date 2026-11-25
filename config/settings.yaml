@@ -1,4 +1,4 @@
 timezone: America/Los_Angeles
-weekly_story_limit: 30
+daily_story_limit: 5
 max_tokens: 32000
 llm_timeout_seconds: 300

@@ -109,7 +109,7 @@ def publish_review(start, branch, pr):
         print(run('gh', 'pr', 'create', '--base', os.environ.get('DEFAULT_BRANCH', 'main'),
                   '--head', branch, '--title', title, '--body',
                   'Incremental updates to the weekly topic briefings, with daily feed archives. '
-                  'Each topic briefing selects up to 30 weekly stories and preserves prose for retained picks. '
+                  'Each topic briefing appends up to 5 new stories per day and keeps prior picks. '
                   'Daily runs update this PR while it is open; after merging, the next update opens a new PR. '
                   'Review source links, duplicate coverage, and factual accuracy before merging.'))
 
@@ -124,10 +124,15 @@ def prepare(command, date, prs, requested=None):
         rows, outcomes = frontier.collect(dry=True, date=date, known_urls=[r['url'] for r in pending])
         if not any(value.get('ok') for value in outcomes.values()):
             raise ValueError('No successful collection; retry the daily run')
-    elif not (frontier.ROOT/f'weekly/{start.year}/week-of-{start}.md').exists() and not any(
-            review_week(pr) == start for pr in prs) and not any(
-            frontier.in_reporting_week(row['published'], start, start+dt.timedelta(days=7)) for row in pending):
-        print('No previous weekly edition to finalize.'); return
+    else:
+        state_path = frontier.ROOT/f'data/editions/week-of-{start}.json'
+        if state_path.exists() and frontier.edition_finalized(json.loads(state_path.read_text())):
+            print(f'week-of-{start} is already finalized; skipping.')
+            return
+        if not (frontier.ROOT/f'weekly/{start.year}/week-of-{start}.md').exists() and not any(
+                review_week(pr) == start for pr in prs) and not any(
+                frontier.in_reporting_week(row['published'], start, start+dt.timedelta(days=7)) for row in pending):
+            print('No previous weekly edition to finalize.'); return
     branch, review = checkout_review(start, date, prs)
     if branch is None: return
     if command == 'daily': frontier.archive_collection(date, rows, outcomes)

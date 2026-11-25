@@ -341,36 +341,46 @@ def briefing_source(section):
     return source[1] if source else None
 
 
-def curate_topic(topic, body, candidates, limit):
+def curate_topic(topic, body, candidates, limit, prior_urls=()):
+    """Append up to `limit` new stories; never drop or rewrite existing sections."""
     header, sections = story_sections(body)
     existing = {}
+    ordered = []
     for index, section in enumerate(sections):
         url = briefing_source(section) or f'existing:{index}'
-        existing.setdefault(url, section)
-        # Reviewed stories can predate the raw archive or have an edited source URL.
-        candidates.setdefault(url, dict(url=url, title=section.splitlines()[0][3:],
-                                        text=section, source='Existing briefing'))
+        if url in existing:
+            continue
+        existing[url] = section
+        ordered.append(url)
 
-    shortlist = shortlist_candidates(topic, list(candidates.values()), existing)
-    print(f'Curating {topic}: {len(candidates)} eligible, {len(shortlist)} shortlisted', flush=True)
+    prior = set(prior_urls)
+    fresh = [row for url, row in candidates.items()
+             if url not in existing and url not in prior]
+    if not fresh:
+        header = re.sub(r'^No eligible stories collected\.\n?', '', header, flags=re.M)
+        if not ordered:
+            return header.rstrip() + '\n\nNo eligible stories collected.\n'
+        return header.rstrip() + '\n\n' + '\n\n'.join(existing[url].rstrip() for url in ordered) + '\n'
+
+    shortlist = shortlist_candidates(topic, fresh, existing)
+    print(f'Curating {topic}: {len(fresh)} new, {len(shortlist)} shortlisted, append ≤{limit}', flush=True)
     selected = ranked_candidates(topic, shortlist, limit)
-    new = [row for row in selected if row['url'] not in existing]
-    if new:
+    if selected:
         result = model_json(
             'Write a concise summary and significance for each supplied story. Return '
             '{"stories":[{"source_index":0,"summary":"...","significance":"...","tags":["..."]}]}. '
             'Use every candidate exactly once. Indices are zero-based.',
-            [dict(row, text=row['text'][:4000]) for row in new])
+            [dict(row, text=row['text'][:4000]) for row in selected])
         stories = result.get('stories')
-        if not isinstance(stories, list) or len(stories) != len(new):
+        if not isinstance(stories, list) or len(stories) != len(selected):
             raise ValueError('Invalid story count')
         seen = set()
         for item in stories:
             i = item.get('source_index')
-            if type(i) is not int or not 0 <= i < len(new) or i in seen:
+            if type(i) is not int or not 0 <= i < len(selected) or i in seen:
                 raise ValueError('Invalid source reference')
             seen.add(i)
-            row = new[i]
+            row = selected[i]
             summary = text_field(item, 'summary')
             significance = text_field(item, 'significance')
             tags = item.get('tags')
@@ -384,10 +394,15 @@ def curate_topic(topic, body, candidates, limit):
                 f'{summary}\n\n**Why it matters:** {significance}\n\n'
                 f'Source: [{publisher_name(row["source"])}]({row["url"]}) · Based on feed excerpt.\n\n'
                 f'Tags: {", ".join(tags)}\n\n')
+            ordered.append(row['url'])
     header = re.sub(r'^No eligible stories collected\.\n?', '', header, flags=re.M)
-    if not selected:
+    if not ordered:
         return header.rstrip() + '\n\nNo eligible stories collected.\n'
-    return header.rstrip() + '\n\n' + '\n\n'.join(existing[row['url']].rstrip() for row in selected) + '\n'
+    return header.rstrip() + '\n\n' + '\n\n'.join(existing[url].rstrip() for url in ordered) + '\n'
+
+
+def edition_finalized(state):
+    return bool(state.get('finalized'))
 
 
 def coverage_status(body, start, through):
@@ -404,19 +419,23 @@ def coverage_status(body, start, through):
 
 
 def generate(start, dry=False, regenerate=False, through=None, extra_rows=()):
-    """Curate weekly topics while reusing the prose of retained stories."""
+    """Append daily picks to weekly topics; never rewrite a finalized edition."""
     through = through or dt.datetime.now(TZ).date()
     if start > through: raise ValueError('Reporting week has not started')
     end = start + dt.timedelta(days=7); key = f'week-of-{start}'
+    state_path = ROOT/f'data/editions/{key}.json'
+    state = json.loads(state_path.read_text()) if state_path.exists() else {}
+    if edition_finalized(state) and not regenerate:
+        print(f'{key} is finalized; skipping.')
+        return
     rows = [*records(), *extra_rows]
     reports = list((ROOT/'data/collections').glob('*.json'))
     if not rows and not reports: raise ValueError('No successful collection for this reporting week')
-    state_path = ROOT/f'data/editions/{key}.json'
-    state = json.loads(state_path.read_text()) if state_path.exists() else {}
-    limit = SETTINGS['weekly_story_limit']
-    if type(limit) != int or not 1 <= limit <= 30:
-        raise ValueError('weekly_story_limit must be between 1 and 30')
-    ranked_urls = state.get('ranked_urls', {}) if state.get('weekly_story_limit') == limit else {}
+    limit = SETTINGS['daily_story_limit']
+    if type(limit) != int or not 1 <= limit <= 10:
+        raise ValueError('daily_story_limit must be between 1 and 10')
+    # Keep prior candidate fingerprints across setting renames; do not force a full rewrite.
+    ranked_urls = dict(state.get('ranked_urls') or {})
     topics = list(dict.fromkeys(s['topic'] for s in SOURCES))
     paths = {topic: ROOT/f'topics/{topic}/{start.year}/{key}.md' for topic in topics}
     existing = {topic: path.read_text() if path.exists() else
@@ -432,8 +451,12 @@ def generate(start, dry=False, regenerate=False, through=None, extra_rows=()):
         body = existing[topic]
         urls = sorted(candidates)
         _, sections = story_sections(body)
-        if regenerate or urls != ranked_urls.get(topic) or len(sections) > limit:
-            body = curate_topic(topic, body, candidates, limit)
+        published = {briefing_source(section) for section in sections if briefing_source(section)}
+        prior = set() if regenerate else set(ranked_urls.get(topic) or [])
+        fresh_urls = [url for url in urls if url not in published and url not in prior]
+        # Empty pages still go through curation so the placeholder message is written.
+        if regenerate or fresh_urls or not sections:
+            body = curate_topic(topic, body, candidates, limit, prior_urls=prior)
         ranked_urls[topic] = urls
         body = coverage_status(body, start, through)
         output[path] = body
@@ -445,7 +468,7 @@ def generate(start, dry=False, regenerate=False, through=None, extra_rows=()):
     index = ROOT/f'weekly/{start.year}/{key}.md'
     output[index] = coverage_status(weekly_page(start, links, highlights), start, through)
     output[state_path] = json.dumps(dict(week_of=str(start), through=str(min(through, end-dt.timedelta(days=1))),
-        finalized=through >= end, weekly_story_limit=limit, ranked_urls=ranked_urls), indent=2)+'\n'
+        finalized=through >= end, daily_story_limit=limit, ranked_urls=ranked_urls), indent=2)+'\n'
     for path, body in output.items():
         if dry: print(path, body)
         else:

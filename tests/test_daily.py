@@ -66,11 +66,13 @@ class WeeklyBriefings(unittest.TestCase):
         model = self.update([ROW]); model.assert_not_called()
         self.assertEqual(self.page.read_text(), before)
 
-    def test_different_urls_for_same_event_use_existing_context(self):
-        self.update([ROW]); duplicate = dict(ROW, url='https://another.org/same-event')
+    def test_different_urls_for_same_event_append_without_dropping(self):
+        self.update([ROW]); duplicate = dict(ROW, url='https://another.org/same-event', title='Same event')
         model = self.update([ROW, duplicate], dt.date(2026, 11, 11), indices=[0])
-        self.assertEqual(len(model.call_args.args[1]), 2)
-        self.assertEqual(self.page.read_text().count('## First discovery'), 1)
+        text = self.page.read_text()
+        self.assertEqual(model.call_args.args[1][0]['url'], duplicate['url'])
+        self.assertIn('## First discovery', text)
+        self.assertIn('## Same event', text)
 
     def test_unselected_candidates_are_not_retried_every_day(self):
         self.update([ROW], indices=[])
@@ -86,27 +88,42 @@ class WeeklyBriefings(unittest.TestCase):
     def test_monday_finalization_can_append_late_sunday_story(self):
         self.update([ROW]); late = dict(ROW, url='https://example.org/sunday', title='Sunday discovery',
                                        published='2026-11-16T05:00:00+00:00')
-        with patch.object(frontier, 'model_json', side_effect=[{'indices': [0, 1]}, {'stories': [STORY]}]):
+        with patch.object(frontier, 'model_json', side_effect=[{'indices': [0]}, {'stories': [STORY]}]):
             frontier.generate(START, through=dt.date(2026, 11, 16), extra_rows=[ROW, late])
         self.assertIn('## Sunday discovery', self.page.read_text())
         self.assertIn('Reporting period ended.', self.page.read_text())
         state = json.loads((self.root/'data/editions/week-of-2026-11-09.json').read_text())
         self.assertTrue(state['finalized'])
 
+    def test_finalized_week_is_not_rewritten(self):
+        self.update([ROW])
+        with patch.object(frontier, 'model_json', side_effect=[{'indices': [0]}, {'stories': [STORY]}]):
+            frontier.generate(START, through=dt.date(2026, 11, 16), extra_rows=[ROW])
+        before = self.page.read_text()
+        late = dict(ROW, url='https://example.org/too-late', title='Too late',
+                    published='2026-11-16T05:00:00+00:00')
+        with patch.object(frontier, 'model_json') as model:
+            frontier.generate(START, through=dt.date(2026, 11, 17), extra_rows=[ROW, late])
+        model.assert_not_called()
+        self.assertEqual(self.page.read_text(), before)
+        self.assertNotIn('## Too late', before)
+
     def test_publication_date_uses_la_week_at_utc_boundary(self):
         sunday = dict(ROW, published='2026-11-09T01:00:00+00:00')
         model = self.update([sunday]); model.assert_not_called()
         self.assertIn('No eligible stories collected.', self.page.read_text())
 
-    def test_week_stays_capped_at_thirty_and_late_story_can_replace_earlier_pick(self):
-        rows = [dict(ROW, url=f'https://example.org/{i:02d}', title=f'Science news {i}') for i in range(30)]
-        self.update(rows)
-        late = dict(ROW, url='https://example.org/late', title='Late discovery')
-        self.update([*rows, late], dt.date(2026, 11, 11))
+    def test_daily_cap_appends_without_replacing_prior_picks(self):
+        day1 = [dict(ROW, url=f'https://example.org/{i}', title=f'Science news {i}') for i in range(5)]
+        self.update(day1)
+        day2 = [dict(ROW, url=f'https://example.org/late-{i}', title=f'Late discovery {i}',
+                     published='2026-11-11T12:00:00+00:00') for i in range(8)]
+        self.update([*day1, *day2], dt.date(2026, 11, 11), indices=[0, 1, 2, 3, 4])
         body = self.page.read_text()
-        self.assertEqual(body.count('\n## '), 30)
-        self.assertIn('## Late discovery', body)
-        self.assertNotIn('## Science news 29', body)
+        self.assertEqual(body.count('\n## '), 10)
+        for i in range(5):
+            self.assertIn(f'## Science news {i}', body)
+        self.assertEqual(sum(1 for i in range(8) if f'## Late discovery {i}' in body), 5)
 
     def test_invalid_response_does_not_overwrite_existing_pages(self):
         self.update([ROW]); before = self.page.read_text()
@@ -119,7 +136,7 @@ class WeeklyBriefings(unittest.TestCase):
     def test_all_source_failure_and_story_limit(self):
         with patch.object(frontier, 'collect', return_value=([], {'test': {'ok': False}})):
             with self.assertRaisesRegex(ValueError, 'No successful collection'): frontier.daily(dt.date(2026, 11, 10))
-        with self.assertRaisesRegex(ValueError, 'story count'): self.update([ROW], indices=[0]*31)
+        with self.assertRaisesRegex(ValueError, 'story count'): self.update([ROW], indices=[0]*6)
 
     def test_dry_run_does_not_write_files(self):
         with patch.object(frontier, 'collect', return_value=([ROW], {'test': {'ok': True}})), \
