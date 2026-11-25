@@ -129,21 +129,18 @@ class WeeklyBriefings(unittest.TestCase):
 
 
 class ReviewLifecycle(unittest.TestCase):
-    def test_schedule_both_dst_offsets_and_transition_days(self):
-        for day in ['2026-03-07', '2026-03-08', '2026-07-01', '2026-11-01', '2026-12-01']:
-            commands = [workflow.scheduled_command(
-                dt.datetime.fromisoformat(f'{day}T{hour}:30:00+00:00'),
-                schedule=f'30 {hour} * * *') for hour in ['17', '18', '19']]
-            self.assertEqual(commands.count('daily'), 1, day)
-            self.assertEqual(commands.count('generate'), 1, day)
+    def test_utc_crons_map_to_commands(self):
+        noon = dt.datetime.fromisoformat('2026-07-01T12:00:00+00:00')
+        self.assertEqual(workflow.scheduled_command(noon, schedule='0 6 * * *'), 'daily')
+        self.assertEqual(workflow.scheduled_command(noon, schedule='0 7 * * *'), 'generate')
+        self.assertEqual(workflow.scheduled_command(noon, schedule='0 8 * * *'), '')
 
     def test_delayed_schedule_still_runs_intended_command(self):
-        # Recent production misses: cron intended for 10:30 LA started around 15:40 LA.
-        delayed = dt.datetime.fromisoformat('2026-11-19T23:40:17+00:00')
-        self.assertEqual(workflow.scheduled_command(delayed, schedule='30 18 * * *'), 'daily')
-        self.assertEqual(workflow.scheduled_command(delayed, schedule='30 19 * * *'), 'generate')
-        self.assertEqual(workflow.scheduled_command(
-            dt.datetime.fromisoformat('2026-11-19T19:00:00-08:00'), schedule='30 18 * * *'), '')
+        delayed = dt.datetime.fromisoformat('2026-11-24T04:22:10+00:00')
+        self.assertEqual(workflow.scheduled_command(delayed, schedule='0 6 * * *'), 'daily')
+        self.assertEqual(workflow.scheduled_command(delayed, schedule='0 7 * * *'), 'generate')
+        self.assertEqual(workflow.intended_cron_time(delayed, '0 6 * * *').date(), dt.date(2026, 11, 23))
+        self.assertEqual(workflow.intended_cron_time(delayed, '0 7 * * *').date(), dt.date(2026, 11, 23))
 
     def test_open_review_is_resumed_and_reviewer_commits_preserved(self):
         review = pr()

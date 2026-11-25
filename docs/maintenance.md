@@ -28,7 +28,7 @@ Generation validates every topic before writing reader-facing pages and checkpoi
 
 ## Schedule and review lifecycle
 
-The News archive workflow runs at **10:30 America/Los_Angeles daily** to collect feeds and update the current Monday–Sunday briefing. Split UTC cron entries plus a delay-tolerant local gate cover PST/PDT and late GitHub starts (through 18:00 Los Angeles time) without turning into successful no-ops. These are target times, not real-time guarantees.
+The News archive workflow runs at **06:00 UTC daily** to collect feeds and update the current Monday–Sunday briefing. A second cron at **07:00 UTC** finalizes the previous reporting week. Mode maps each cron to a job using its intended UTC fire date, so late GitHub starts still run instead of becoming successful no-ops. These are target times, not real-time guarantees.
 
 There is one open review PR per reporting week. Its branch begins `news/week-of-YYYY-MM-DD-update-<first-update-date>`. Daily runs resume that PR from its latest head, merge the selected base branch, and refresh the weekly selection. Reviewer commits are preserved, and the workflow never force-pushes. A merge conflict or concurrent reviewer push fails safely; resolve conflicts on the review branch and rerun.
 
@@ -36,7 +36,7 @@ There is one open review PR per reporting week. Its branch begins `news/week-of-
 
 Weekly Markdown stays at `weekly/<year>/week-of-YYYY-MM-DD.md` and `topics/<topic>/<year>/week-of-YYYY-MM-DD.md`. Current-week pages show a coverage date and an in-progress notice. Navigation points to the latest available reporting week.
 
-At **11:30 daily**, the workflow checks the previous reporting week. From Monday onward it can consider Sunday stories captured by later polling and mark the reporting period as ended. It reads pending archive records as well as merged records, so Monday's current-week PR does not need to merge before Sunday stories can be summarized. Each source URL appears at most once per topic briefing. The final pass updates the same weekly pages.
+At **07:00 UTC daily**, the workflow checks the previous reporting week. From Monday onward it can consider Sunday stories captured by later polling and mark the reporting period as ended. It reads pending archive records as well as merged records, so Monday's current-week PR does not need to merge before Sunday stories can be summarized. Each source URL appears at most once per topic briefing. The final pass updates the same weekly pages.
 
 Manual dispatch supports `daily` or `generate`, an optional collection/coverage date, and an optional Monday date. It runs the selected branch and targets content PRs to that branch, allowing feature-branch testing before merging. Scheduled runs use the default branch. Local `daily` always targets its date's current week; workflow dispatch also accepts an explicit week override.
 

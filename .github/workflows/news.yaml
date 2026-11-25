@@ -1,11 +1,9 @@
 name: News archive
 on:
   schedule:
-    # Split crons so delayed GitHub starts still know which job was intended.
-    # Local-hour gate remains delay-tolerant (see news_workflow.scheduled_command).
-    - cron: '30 17 * * *' # daily candidate (10:30 PDT)
-    - cron: '30 18 * * *' # daily candidate (10:30 PST) / generate candidate (11:30 PDT)
-    - cron: '30 19 * * *' # generate candidate (11:30 PST)
+    # Fixed UTC times. Mode maps cron → job by identity + intended UTC date.
+    - cron: '0 6 * * *' # daily (06:00 UTC)
+    - cron: '0 7 * * *' # generate (07:00 UTC)
   workflow_dispatch:
     inputs:
       command:
@@ -48,7 +46,7 @@ jobs:
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_MODEL: ${{ vars.LLM_MODEL || secrets.LLM_MODEL }}
           COMMAND: ${{ steps.mode.outputs.command }}
-          COLLECTION_DATE: ${{ inputs.date }}
+          COLLECTION_DATE: ${{ inputs.date || steps.mode.outputs.date }}
           WEEK: ${{ inputs.week_of }}
         run: |
           args=("$COMMAND")

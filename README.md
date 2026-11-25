@@ -35,11 +35,11 @@ Current reporting week — coverage is incomplete.
 
 ## How the briefings work
 
-Feeds are gathered daily at **10:30 Los Angeles time**, including daylight saving changes. Each run considers the articles collected for the current Monday–Sunday briefing. A local filter shortlists up to 30 articles per topic using headline and excerpt signals, source metadata, and overlapping coverage. The model ranks the shortlist and selects the stories to publish. Retained stories keep their summaries and reviewer edits.
+Feeds are gathered daily at **06:00 UTC**. Each run considers the articles collected for the current Monday–Sunday briefing. A local filter shortlists up to 30 articles per topic using headline and excerpt signals, source metadata, and overlapping coverage. The model ranks the shortlist and selects the stories to publish. Retained stories keep their summaries and reviewer edits.
 
 Daily runs update the week's open review PR. If that PR has been merged, the next daily run opens a fresh update PR for the same weekly pages. Merge whenever you want to publish the coverage so far. Existing subscriptions keep the same edition identity as its content is updated.
 
-The previous week's briefing is finalized from **Monday at 11:30 Los Angeles time**, with daily retries to capture late-collected Sunday stories. Reporting periods use source publication dates in Los Angeles time. Current-week coverage is labeled as in progress.
+The previous week's briefing is finalized from **07:00 UTC** (with daily retries from Monday onward) to capture late-collected Sunday stories. Reporting periods use source publication dates in Los Angeles time. Current-week coverage is labeled as in progress.
 
 ## Sources and reading notes
 
