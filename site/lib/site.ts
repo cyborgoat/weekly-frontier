@@ -1,8 +1,8 @@
-export const siteUrl = "https://www.cyborgoat.com/weekly-frontier";
+export const siteUrl = "https://weekly.cyborgoat.com";
 export const portfolioUrl = "https://www.cyborgoat.com";
 export const githubUrl = "https://github.com/cyborgoat";
 export const githubRepoUrl = "https://github.com/cyborgoat/weekly-frontier";
-export const basePath = "/weekly-frontier";
+export const basePath = "";
 
 export const TOPICS = [
   "ai",
@@ -39,7 +39,7 @@ export function feedUrl(stem: string) {
   return `${siteUrl}/${stem}.xml`;
 }
 
-/** Public asset path under GitHub Pages basePath (next/image omits it when unoptimized). */
+/** Public asset path (next/image omits basePath when unoptimized). */
 export function assetPath(path: string) {
   const normalized = path.startsWith("/") ? path : `/${path}`;
   return `${basePath}${normalized}`;

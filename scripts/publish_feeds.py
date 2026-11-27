@@ -13,7 +13,7 @@ import markdown
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = 'https://github.com/cyborgoat/weekly-frontier'
-BASE = 'https://www.cyborgoat.com/weekly-frontier/'
+BASE = 'https://weekly.cyborgoat.com/'
 TOPICS = ['ai', 'technology', 'politics', 'finance', 'science', 'business']
 ATOM = 'http://www.w3.org/2005/Atom'
 ET.register_namespace('atom', ATOM)

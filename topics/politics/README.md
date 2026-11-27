@@ -25,6 +25,6 @@ Summaries use feed excerpts and link to the original material. Selection and sou
 
 ## Subscribe
 
-[![Subscribe via Atom](../../assets/badges/atom.svg)](https://www.cyborgoat.com/weekly-frontier/feeds/politics.xml) [![Subscribe via RSS](../../assets/badges/rss.svg)](https://www.cyborgoat.com/weekly-frontier/feeds/politics.rss.xml)
+[![Subscribe via Atom](../../assets/badges/atom.svg)](https://weekly.cyborgoat.com/feeds/politics.xml) [![Subscribe via RSS](../../assets/badges/rss.svg)](https://weekly.cyborgoat.com/feeds/politics.rss.xml)
 
 Add either feed to your reader. New editions appear after publication.
