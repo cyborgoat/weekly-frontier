@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { listWeekSlugs, loadWeekEdition } from "@/lib/content";
+import { listWeekSlugs, loadWeekEdition, topicHref } from "@/lib/content";
 
 export default function HomePage() {
   const week = listWeekSlugs()[0];
@@ -61,7 +61,7 @@ export default function HomePage() {
           <h2 id="topic-highlights" className="section-title">This week by topic</h2>
           <div className="mt-5 grid grid-cols-1 gap-px overflow-hidden rounded-sm border bg-rule sm:grid-cols-2 lg:grid-cols-3">
             {latest.topics.map((topic) => {
-              const href = `/topic/${topic.topic}/${topic.week}/`;
+              const href = topicHref(topic.topic, topic.week);
               const story = topic.stories.find((story) => !highlightTitles.has(story.title)) ?? topic.stories[0];
 
               return (

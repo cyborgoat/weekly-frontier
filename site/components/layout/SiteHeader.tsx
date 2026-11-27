@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import { NavigationMenu } from "radix-ui";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SocialLinks } from "@/components/SocialLinks";
+import { SubscribeMenu } from "@/components/SubscribeMenu";
 import { ThemeToggleButton } from "@/components/theme-toggle-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,23 +17,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { TOPICS, TOPIC_LABELS } from "@/lib/site";
+import type { TopicSlug } from "@/lib/site";
 
-const topics = TOPICS.map((topic) => ({
-  label: TOPIC_LABELS[topic],
-  href: `/topic/${topic}/`,
-}));
+export type NavTopic = {
+  topic: TopicSlug;
+  label: string;
+  href: string;
+};
 
 const home = { label: "Home", href: "/" };
 
-export function SiteHeader() {
+export function SiteHeader({ topics }: { topics: NavTopic[] }) {
   const pathname = usePathname();
 
-  function currentSection(href: string) {
+  function currentSection(href: string, topic?: TopicSlug) {
     if (pathname === href || `${pathname}/` === href) return "page";
-    if (href !== home.href && pathname.startsWith(href)) {
-      return "location";
-    }
+    // Topic nav links point at a specific week; keep the section active for any week.
+    if (topic && pathname.startsWith(`/topic/${topic}/`)) return "location";
     return undefined;
   }
 
@@ -51,10 +52,21 @@ export function SiteHeader() {
 
         <NavigationMenu.Root aria-label="Sections" className="hidden lg:block">
           <NavigationMenu.List className="flex items-center gap-5 xl:gap-7">
-            {[home, ...topics].map(({ label, href }) => {
-              const current = currentSection(href);
+            <NavigationMenu.Item>
+              <NavigationMenu.Link asChild active={Boolean(currentSection(home.href))}>
+                <Link
+                  href={home.href}
+                  aria-current={currentSection(home.href)}
+                  className="block border-b-2 border-transparent py-4 text-sm font-semibold hover:text-brand data-[active]:border-brand data-[active]:text-brand"
+                >
+                  {home.label}
+                </Link>
+              </NavigationMenu.Link>
+            </NavigationMenu.Item>
+            {topics.map(({ topic, label, href }) => {
+              const current = currentSection(href, topic);
               return (
-                <NavigationMenu.Item key={href}>
+                <NavigationMenu.Item key={topic}>
                   <NavigationMenu.Link asChild active={Boolean(current)}>
                     <Link
                       href={href}
@@ -90,11 +102,11 @@ export function SiteHeader() {
                   <SheetTitle>Topics</SheetTitle>
                 </SheetHeader>
                 <nav aria-label="Topics" className="grid gap-1 px-4">
-                  {topics.map(({ label, href }) => (
-                    <SheetClose key={href} asChild>
+                  {topics.map(({ topic, label, href }) => (
+                    <SheetClose key={topic} asChild>
                       <Link
                         href={href}
-                        aria-current={currentSection(href)}
+                        aria-current={currentSection(href, topic)}
                         className="rounded-sm px-3 py-2 text-sm font-semibold hover:bg-accent aria-[current]:bg-accent aria-[current]:text-brand"
                       >
                         {label}
@@ -106,6 +118,7 @@ export function SiteHeader() {
             </Sheet>
           </div>
           <SocialLinks />
+          <SubscribeMenu />
           <ThemeToggleButton />
         </div>
       </div>

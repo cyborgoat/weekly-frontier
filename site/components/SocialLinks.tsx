@@ -1,7 +1,6 @@
-import { Rss } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { feedUrl, githubUrl } from "@/lib/site";
+import { githubUrl } from "@/lib/site";
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -27,11 +26,6 @@ export function SocialLinks({ className }: { className?: string }) {
           aria-label="GitHub"
         >
           <GitHubIcon className="size-[1.2rem]" />
-        </a>
-      </Button>
-      <Button variant="ghost" size="icon" asChild>
-        <a href={feedUrl("feed.rss")} aria-label="RSS feed">
-          <Rss aria-hidden="true" className="size-[1.2rem] text-brand" />
         </a>
       </Button>
     </div>

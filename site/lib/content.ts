@@ -208,6 +208,15 @@ export function listTopicWeeks(topic: TopicSlug): TopicBriefing[] {
     .filter((briefing): briefing is TopicBriefing => briefing !== null);
 }
 
+export function latestTopicWeek(topic: TopicSlug): string | null {
+  return listTopicWeeks(topic)[0]?.week ?? null;
+}
+
+export function topicHref(topic: TopicSlug, week?: string | null) {
+  const targetWeek = week ?? latestTopicWeek(topic);
+  return targetWeek ? `/topic/${topic}/${targetWeek}/` : `/topic/${topic}/`;
+}
+
 export function isTopicSlug(value: string): value is TopicSlug {
   return (TOPICS as readonly string[]).includes(value);
 }

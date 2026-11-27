@@ -1,7 +1,5 @@
-import { WeekPicker } from "@/components/WeekPicker";
 import { notFound } from "next/navigation";
-import { PageBreadcrumbs } from "@/components/PageBreadcrumbs";
-import { BriefingStories } from "@/components/BriefingStories";
+import { TopicBriefingPage } from "@/components/TopicBriefingPage";
 import {
   isTopicSlug,
   listTopicWeeks,
@@ -39,35 +37,10 @@ export default async function TopicWeekPage({ params }: PageProps) {
   if (!briefing) notFound();
 
   return (
-    <div className="page-spacing">
-      <article className="magazine-shell">
-        <PageBreadcrumbs
-          items={[
-            { label: "Weekly Frontier", href: "/" },
-            { label: TOPIC_LABELS[topic], href: `/topic/${topic}/` },
-            { label: briefing.period ?? week },
-          ]}
-        />
-        <p className="section-kicker mt-5">{TOPIC_LABELS[topic]}</p>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <h1 className="page-title mt-2">
-            {TOPIC_LABELS[topic]} briefing
-            <span className="mt-2 block text-[0.55em] font-medium tracking-normal text-muted-foreground">
-              {briefing.period ?? week}
-            </span>
-          </h1>
-          <WeekPicker
-            current={week}
-            weeks={listTopicWeeks(topic).map(({ week, period }) => ({ week, period }))}
-            topic={topic}
-          />
-        </div>
-        {briefing.coverage ? (
-          <p className="meta-text mt-3">{briefing.coverage}</p>
-        ) : null}
-
-        <BriefingStories stories={briefing.stories} />
-      </article>
-    </div>
+    <TopicBriefingPage
+      topic={topic}
+      briefing={briefing}
+      weeks={listTopicWeeks(topic).map(({ week, period }) => ({ week, period }))}
+    />
   );
 }

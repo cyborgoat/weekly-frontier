@@ -18,7 +18,7 @@ export function SiteFooter() {
         </div>
         <div className="flex items-center gap-2">
           <SocialLinks />
-          <SubscribeMenu />
+          <SubscribeMenu side="top" />
         </div>
       </div>
     </footer>

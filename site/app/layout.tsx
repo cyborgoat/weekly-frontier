@@ -5,7 +5,8 @@ import "./globals.css";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ThemeProvider } from "@/components/theme-provider";
-import { siteUrl } from "@/lib/site";
+import { topicHref } from "@/lib/content";
+import { siteUrl, TOPIC_LABELS, TOPICS } from "@/lib/site";
 
 const description =
   "A weekly reading companion covering AI, technology, politics, finance, science, and business — concise, source-linked briefings with Atom and RSS subscriptions.";
@@ -38,6 +39,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const topics = TOPICS.map((topic) => ({
+    topic,
+    label: TOPIC_LABELS[topic],
+    href: topicHref(topic),
+  }));
+
   return (
     <html
       lang="en"
@@ -46,7 +53,7 @@ export default function RootLayout({
     >
       <body className="site-atmosphere flex min-h-screen flex-col bg-background font-sans antialiased">
         <ThemeProvider>
-          <SiteHeader />
+          <SiteHeader topics={topics} />
           <main id="main-content" tabIndex={-1} className="flex-1">
             {children}
           </main>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Atom, ChevronDown, ChevronRight, Rss } from "lucide-react";
+import { Atom, ChevronRight, Rss } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import { feedUrl, TOPIC_LABELS, TOPICS } from "@/lib/site";
@@ -22,18 +22,16 @@ const panelClass = "z-50 min-w-36 rounded-md border bg-popover p-1 text-popover-
 const itemClass =
   "flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[state=open]:bg-accent";
 
-export function SubscribeMenu() {
+export function SubscribeMenu({ side = "bottom" }: { side?: "top" | "bottom" }) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <Button variant="outline" size="sm">
-          <Rss aria-hidden="true" className="text-brand" />
-          Subscribe
-          <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
+        <Button variant="ghost" size="icon" aria-label="Subscribe">
+          <Rss aria-hidden="true" className="size-[1.2rem] text-brand" />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content align="end" side="top" sideOffset={8} collisionPadding={8} className={panelClass}>
+        <DropdownMenu.Content align="end" side={side} sideOffset={8} collisionPadding={8} className={panelClass}>
           {formats.map(({ label, icon: Icon, suffix }) => (
             <DropdownMenu.Sub key={label}>
               <DropdownMenu.SubTrigger className={itemClass}>
