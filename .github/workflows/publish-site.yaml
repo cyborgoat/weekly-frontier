@@ -9,7 +9,7 @@ on:
       - 'site/**'
       - 'scripts/publish_feeds.py'
       - 'requirements.txt'
-      - '.github/workflows/feeds.yaml'
+      - '.github/workflows/publish-site.yaml'
   pull_request:
     paths:
       - 'weekly/**'
