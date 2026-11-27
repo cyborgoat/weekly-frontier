@@ -54,8 +54,25 @@ jobs:
       - name: Merge publication feeds
         run: python scripts/publish_feeds.py --output site/out
       - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        name: Ensure Cloudflare Pages project
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy site/out --project-name=weekly-frontier
+          # List first so a wrong Account ID / Worker-vs-Pages mix-up is obvious in logs.
+          command: pages project list
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        name: Create Cloudflare Pages project if missing
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create weekly-frontier --production-branch=main
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site/out --project-name=weekly-frontier --commit-dirty=true
