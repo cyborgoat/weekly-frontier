@@ -7,7 +7,7 @@
 
 A weekly reading companion for people following developments in AI, technology, politics, finance, science, and business. Browse concise briefings, explore a topic, and follow the source links for the original reporting.
 
-**Read online:** [weekly.cyborgoat.com](https://weekly.cyborgoat.com/)
+**Read online:** [weekly-frontier.cyborgoat.com](https://weekly-frontier.cyborgoat.com/)
 
 ## Read the latest edition
 
@@ -59,6 +59,6 @@ Repository materials are provided under the [MIT license](LICENSE). Linked artic
 
 ## Subscribe
 
-[![Subscribe via Atom](assets/badges/atom.svg)](https://weekly.cyborgoat.com/feed.xml) [![Subscribe via RSS](assets/badges/rss.svg)](https://weekly.cyborgoat.com/feed.rss.xml)
+[![Subscribe via Atom](assets/badges/atom.svg)](https://weekly-frontier.cyborgoat.com/feed.xml) [![Subscribe via RSS](assets/badges/rss.svg)](https://weekly-frontier.cyborgoat.com/feed.rss.xml)
 
 Add either feed to your reader. Each week keeps a stable feed entry; its content and update timestamp change as daily updates are reviewed and merged. Feed readers may handle updates differently.

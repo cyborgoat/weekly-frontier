@@ -25,6 +25,6 @@ Summaries use feed excerpts and link to the original material. Selection and sou
 
 ## Subscribe
 
-[![Subscribe via Atom](../../assets/badges/atom.svg)](https://weekly.cyborgoat.com/feeds/ai.xml) [![Subscribe via RSS](../../assets/badges/rss.svg)](https://weekly.cyborgoat.com/feeds/ai.rss.xml)
+[![Subscribe via Atom](../../assets/badges/atom.svg)](https://weekly-frontier.cyborgoat.com/feeds/ai.xml) [![Subscribe via RSS](../../assets/badges/rss.svg)](https://weekly-frontier.cyborgoat.com/feeds/ai.rss.xml)
 
 Add either feed to your reader. New editions appear after publication.

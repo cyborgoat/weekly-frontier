@@ -17,6 +17,6 @@ Current reporting week — coverage is incomplete.
 
 ## Subscribe
 
-[![Subscribe via Atom](../assets/badges/atom.svg)](https://weekly.cyborgoat.com/feed.xml) [![Subscribe via RSS](../assets/badges/rss.svg)](https://weekly.cyborgoat.com/feed.rss.xml)
+[![Subscribe via Atom](../assets/badges/atom.svg)](https://weekly-frontier.cyborgoat.com/feed.xml) [![Subscribe via RSS](../assets/badges/rss.svg)](https://weekly-frontier.cyborgoat.com/feed.rss.xml)
 
 Add either feed to your reader. New editions appear after publication.

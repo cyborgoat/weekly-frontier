@@ -1,4 +1,4 @@
-export const siteUrl = "https://weekly.cyborgoat.com";
+export const siteUrl = "https://weekly-frontier.cyborgoat.com";
 export const portfolioUrl = "https://www.cyborgoat.com";
 export const githubUrl = "https://github.com/cyborgoat";
 export const githubRepoUrl = "https://github.com/cyborgoat/weekly-frontier";
