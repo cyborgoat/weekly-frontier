@@ -37,7 +37,7 @@ Current reporting week — coverage is incomplete.
 
 Feeds are gathered daily at **06:00 UTC**. Each run considers the articles collected for the current Monday–Sunday briefing and labels pages with **Coverage through** that run’s UTC day (today unless a backfill date is set). A local filter shortlists candidates per topic; the model appends up to **5 new stories per topic per day**. Earlier picks stay on the page. Retained stories keep their summaries and reviewer edits.
 
-Daily runs update the week's open review PR. If that PR has been merged, the next daily run opens a fresh update PR for the same weekly pages. Merge whenever you want to publish the coverage so far. Existing subscriptions keep the same edition identity as its content is updated.
+Daily runs open a review PR for the week's coverage, merge it automatically after validation, and publish the site. The next daily run opens a fresh update PR for the same weekly pages. Existing subscriptions keep the same edition identity as its content is updated.
 
 From **07:00 UTC**, generate refreshes the current week from archives and finalizes the prior week if it is still open (late Sunday catch-up, then lock). Reporting periods use source publication dates in Los Angeles time. Current-week coverage is labeled as in progress.
 

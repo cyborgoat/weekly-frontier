@@ -205,6 +205,25 @@ class ReviewLifecycle(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 workflow.checkout_review(START, dt.date(2026, 11, 11), [pr()])
 
+    def test_publish_review_merges_pr_and_dispatches_publish_site(self):
+        calls = []
+
+        def fake_run(*args):
+            calls.append(args)
+            if args[:3] == ('git', 'diff', '--cached'):
+                return 'topics/science/2026/week-of-2026-11-09.md'
+            if args[:2] == ('gh', 'pr') and args[2] == 'view':
+                return '42'
+            return ''
+
+        with patch.object(workflow, 'run', side_effect=fake_run):
+            workflow.publish_review(START, 'news/week-of-2026-11-09-update-2026-11-10', None)
+        create = next(call for call in calls if call[:3] == ('gh', 'pr', 'create'))
+        self.assertEqual(create[:7], ('gh', 'pr', 'create', '--base', 'main', '--head',
+                                      'news/week-of-2026-11-09-update-2026-11-10'))
+        self.assertIn(('gh', 'pr', 'merge', '42', '--merge', '--delete-branch'), calls)
+        self.assertIn(('gh', 'workflow', 'run', 'publish-site.yaml'), calls)
+
     def test_pending_archive_context_is_kept_when_daily_collect_runs(self):
         with patch.object(workflow, 'pending_records', return_value=[ROW]), \
              patch.object(workflow, 'checkout_review', return_value=('branch', pr())), \

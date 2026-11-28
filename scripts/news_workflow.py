@@ -104,14 +104,20 @@ def publish_review(start, branch, pr):
     run('python', 'scripts/publish_feeds.py')
     run('git', 'push', '--set-upstream', 'origin', branch)
     if pr:
-        print(f'Updated weekly review PR #{pr["number"]}.')
+        number = str(pr['number'])
+        print(f'Updated weekly review PR #{number}.')
     else:
         print(run('gh', 'pr', 'create', '--base', os.environ.get('DEFAULT_BRANCH', 'main'),
                   '--head', branch, '--title', title, '--body',
                   'Incremental updates to the weekly topic briefings, with daily feed archives. '
                   'Each topic briefing appends up to 5 new stories per day and keeps prior picks. '
-                  'Daily runs update this PR while it is open; after merging, the next update opens a new PR. '
-                  'Review source links, duplicate coverage, and factual accuracy before merging.'))
+                  'The news workflow merges this PR automatically and opens a fresh PR on the next update.'))
+        number = run('gh', 'pr', 'view', branch, '--json', 'number', '--jq', '.number')
+    # GITHUB_TOKEN merges do not trigger other workflows; dispatch Publish site explicitly.
+    run('gh', 'pr', 'merge', number, '--merge', '--delete-branch')
+    print(f'Merged PR #{number}.')
+    run('gh', 'workflow', 'run', 'publish-site.yaml')
+    print('Triggered Publish site workflow.')
 
 
 def prepare(command, date, prs, requested=None):

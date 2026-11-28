@@ -6,7 +6,7 @@ Run commands from the repository root.
 
 Use Python 3.12 or newer. Create a virtual environment with `python3 -m venv .venv`, activate it with `source .venv/bin/activate`, then install `pip install -r requirements.txt`. Copy `.env.example` for reference; variables must be exported (dotenv files are not loaded). Set `LLM_API_KEY`, `LLM_MODEL`, and `LLM_BASE_URL`. Never commit credentials.
 
-In GitHub, configure secrets `LLM_API_KEY` and `LLM_BASE_URL`, and repository variable `LLM_MODEL`. The workflow also accepts the base URL as a variable and the model as a secret. Enable Actions permissions to write repository content and create pull requests. Daily archives and briefing changes go through review PRs rather than direct pushes to the default branch.
+In GitHub, configure secrets `LLM_API_KEY` and `LLM_BASE_URL`, and repository variable `LLM_MODEL`. The workflow also accepts the base URL as a variable and the model as a secret. Enable Actions permissions to write repository content, create pull requests, and trigger workflows. Daily archives and briefing changes go through review PRs that the news workflow merges automatically.
 
 ## Commands
 
@@ -30,9 +30,7 @@ Generation validates every topic before writing reader-facing pages and checkpoi
 
 The News archive workflow runs at **06:00 UTC daily** to collect feeds and update the current Monday–Sunday briefing. A second cron at **07:00 UTC** finalizes the previous reporting week. Mode maps each cron to a job using its intended UTC fire date, so late GitHub starts still run instead of becoming successful no-ops. These are target times, not real-time guarantees.
 
-There is one open review PR per reporting week. Its branch begins `news/week-of-YYYY-MM-DD-update-<first-update-date>`. Daily runs resume that PR from its latest head, merge the selected base branch, and refresh the weekly selection. Reviewer commits are preserved, and the workflow never force-pushes. A merge conflict or concurrent reviewer push fails safely; resolve conflicts on the review branch and rerun.
-
-**Merging before the week ends is supported.** It publishes the coverage accumulated so far. The next day's run starts from the merged pages and opens a fresh update PR for the same reporting week. A same-day rerun after merging does not recreate that update. A rejected PR is not silently resurrected; reopen the latest rejected weekly review to resume updates.
+There is one review PR per update for a reporting week. Its branch begins `news/week-of-YYYY-MM-DD-update-<first-update-date>`. After tests and feed validation, the news workflow merges that PR into the default branch and dispatches Publish site (token merges do not trigger other workflows on their own). The next daily run starts from the merged pages and opens a fresh update PR for the same reporting week. A same-day rerun after merging does not recreate that update. A rejected PR is not silently resurrected; reopen the latest rejected weekly review to resume updates. If a PR is left open manually, the next run resumes it from its latest head, preserves reviewer commits, and never force-pushes; merge conflicts fail safely.
 
 Weekly Markdown stays at `weekly/<year>/week-of-YYYY-MM-DD.md` and `topics/<topic>/<year>/week-of-YYYY-MM-DD.md`. Current-week pages show a coverage date and an in-progress notice. Navigation points to the latest available reporting week.
 
@@ -42,7 +40,7 @@ Manual dispatch supports `daily` or `generate`, an optional collection/coverage 
 
 Orchestration lives in `scripts/news_workflow.py` and uses the runner's Git and GitHub CLI. It reads pending archives for deduplication, collects, then checks out the open review head before modifying content. A pushed branch without a PR, for example after an API failure, can be recovered by opening its PR manually. Do not run orchestration from an untrusted checkout with publishing credentials.
 
-GitHub's workflow token does not trigger additional workflows when it opens or updates a PR. The news job therefore runs tests and builds publication feeds before pushing. Human-created or updated content PRs also trigger Publish feeds validation. Publication occurs only after merging to main.
+GitHub's workflow token does not trigger additional workflows when it opens, updates, or merges a PR. The news job therefore runs tests and builds publication feeds before pushing, then merges and dispatches Publish site so the magazine deploys. Human-created content PRs still need a manual merge; Publish site runs on push to main after that merge.
 
 ## Sources and editorial policy
 
@@ -50,7 +48,7 @@ Edit `config/sources.yaml` to add feeds. The current **35 source feeds** cover A
 
 Newly seen eligible articles enter the ranking pool. The model reviews a local shortlist (up to 30 candidates), with a title and excerpt for each, and selects at most 5 new picks for that day. Eligibility still requires an in-week publication date and enough feed text to support a source-linked summary.
 
-Summaries use publisher-supplied feed text, capped at 12,000 characters per item. Prefer usable summaries; fall back to embedded RSS/Atom content when a summary is missing or too short. Linked webpages are not fetched, and title-only items remain ineligible. This applies to newly collected records; previously archived empty excerpts are not automatically backfilled. Daily polling cannot guarantee completeness. Attribute disputed claims and lab claims, identify preprints as unreviewed, and treat significance as analysis. Human review is required before merging. Model generation does not independently fact-check stories; invalid responses fail the run instead of being silently repaired.
+Summaries use publisher-supplied feed text, capped at 12,000 characters per item. Prefer usable summaries; fall back to embedded RSS/Atom content when a summary is missing or too short. Linked webpages are not fetched, and title-only items remain ineligible. This applies to newly collected records; previously archived empty excerpts are not automatically backfilled. Daily polling cannot guarantee completeness. Attribute disputed claims and lab claims, identify preprints as unreviewed, and treat significance as analysis. The news workflow merges without a human gate; model generation does not independently fact-check stories, and invalid responses fail the run instead of being silently repaired.
 
 Feed requests use a 60-second timeout. Model calls use a 10-second connection timeout and configurable `llm_timeout_seconds` read timeout (300 seconds by default). Transient request failures are retried up to three attempts. Collection and topic-generation progress appear in workflow logs. The successful incremental-workflow test collected all 17 sources configured at that time and generated the weekly briefings; subsequent source changes need their own feed checks.
 
